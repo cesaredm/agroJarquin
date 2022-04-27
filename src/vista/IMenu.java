@@ -153,6 +153,7 @@ public class IMenu extends javax.swing.JFrame {
                 addDescuento = new javax.swing.JMenuItem();
                 addDescuentoDirecto = new javax.swing.JMenuItem();
                 addDescuentoPorcentaje = new javax.swing.JMenuItem();
+                subirPrecio = new javax.swing.JMenuItem();
                 mnRegistroMonedas = new javax.swing.JPopupMenu();
                 editarRegistroMonedas = new javax.swing.JMenuItem();
                 ventanaCategoria = new javax.swing.JDialog();
@@ -915,6 +916,9 @@ public class IMenu extends javax.swing.JFrame {
 
                 addDescuentoPorcentaje.setText("Agregar descuento %");
                 mnTablaFactura.add(addDescuentoPorcentaje);
+
+                subirPrecio.setText("Subir precio");
+                mnTablaFactura.add(subirPrecio);
 
                 editarRegistroMonedas.setText("Editar registro");
                 mnRegistroMonedas.add(editarRegistroMonedas);
@@ -6351,10 +6355,10 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel186;
         private javax.swing.JLabel jLabel187;
         private javax.swing.JLabel jLabel188;
-        private javax.swing.JLabel jLabel189;
+        public javax.swing.JLabel jLabel189;
         private javax.swing.JLabel jLabel19;
-        private javax.swing.JLabel jLabel190;
-        private javax.swing.JLabel jLabel191;
+        public javax.swing.JLabel jLabel190;
+        public javax.swing.JLabel jLabel191;
         private javax.swing.JLabel jLabel192;
         private javax.swing.JLabel jLabel193;
         private javax.swing.JLabel jLabel194;
@@ -6472,7 +6476,7 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JPanel jPanel10;
         private javax.swing.JPanel jPanel11;
         private javax.swing.JPanel jPanel12;
-        private javax.swing.JPanel jPanel13;
+        public javax.swing.JPanel jPanel13;
         private javax.swing.JPanel jPanel14;
         private javax.swing.JPanel jPanel15;
         private javax.swing.JPanel jPanel16;
@@ -6701,7 +6705,7 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JPanel pnlContenedor;
         public javax.swing.JPanel pnlInfoFactura;
         public javax.swing.JPanel pnlInventario;
-        private javax.swing.JPanel pnlInversion;
+        public javax.swing.JPanel pnlInversion;
         public javax.swing.JPanel pnlMenuLateral;
         public javax.swing.JPanel pnlNotificaciones;
         private javax.swing.JPanel pnlPrincipal;
@@ -6716,6 +6720,7 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JSpinner spPrecioMinimoProducto;
         public javax.swing.JSpinner spPrecioVenta;
         public javax.swing.JSpinner spUtilidad;
+        public javax.swing.JMenuItem subirPrecio;
         public javax.swing.JTable tblAbonosCreditos;
         public javax.swing.JTable tblAddCategoria;
         public javax.swing.JTable tblAddClienteCredito;
