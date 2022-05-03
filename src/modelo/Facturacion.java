@@ -35,6 +35,10 @@ public class Facturacion extends Conexiondb {
 	private String iva;
 	private String total;
 	private String anotacion;
+	private int dolarizado;
+
+	private float precioCompraInfo;
+	private String monedaCompraInfo, monedaVentaInfo;
 
 	public Facturacion() {
 		this.cn = null;
@@ -68,6 +72,14 @@ public class Facturacion extends Conexiondb {
 	}
 
 	//SETTER DE FACTURACION
+	public int getDolarizado() {
+		return dolarizado;
+	}
+
+	public void setDolarizado(int dolarizado) {
+		this.dolarizado = dolarizado;
+	}
+
 	public void setCaja(int caja) {
 		this.caja = caja;
 	}
@@ -120,7 +132,7 @@ public class Facturacion extends Conexiondb {
 	public void GuardarFactura() {
 		cn = Conexion();
 		this.consulta = "INSERT INTO facturas(caja ,fecha, nombre_comprador, credito, tipoVenta, impuestoISV,"
-			+ " totalFactura, anotaciones) VALUES(?,?,?,?,?,?,?,?)";
+			+ " totalFactura, anotaciones, totalDolarisado) VALUES(?,?,?,?,?,?,?,?,?)";
 		int idCredito = 0, formaPago = Integer.parseInt(pago);
 		float impuestoIVA = Float.parseFloat(iva), totalFactura = Float.parseFloat(total);
 		if (!credito.equals("")) {
@@ -135,6 +147,7 @@ public class Facturacion extends Conexiondb {
 				pst.setFloat(6, impuestoIVA);
 				pst.setFloat(7, totalFactura);
 				pst.setString(8, anotacion);
+				pst.setInt(9, dolarizado);
 				this.banderin = pst.executeUpdate();
 				if (banderin > 0) {
 					//JOptionPane.showMessageDialog(null, "Factura Guardada Exitosamente", "Informacion", JOptionPane.WARNING_MESSAGE);
@@ -154,6 +167,7 @@ public class Facturacion extends Conexiondb {
 				pst.setFloat(6, impuestoIVA);
 				pst.setFloat(7, totalFactura);
 				pst.setString(8, anotacion);
+				pst.setInt(9, dolarizado);
 				this.banderin = pst.executeUpdate();
 				if (banderin > 0) {
 					//JOptionPane.showMessageDialog(null, "Factura Guardada Exitosamente", "Informacion", JOptionPane.WARNING_MESSAGE);
@@ -165,9 +179,6 @@ public class Facturacion extends Conexiondb {
 		}
 
 	}
-
-	private float precioCompraInfo;
-	private String monedaCompraInfo, monedaVentaInfo;
 
 	public void getInfoProducto(int producto) {
 		cn = Conexion();
@@ -201,7 +212,7 @@ public class Facturacion extends Conexiondb {
 		this.getInfoProducto(idProducto);
 		cn = Conexion();
 		this.consulta = "INSERT INTO detalleFactura(factura, producto, precioProducto, cantidadProducto,"
-			+ " totalVenta, bandera, tasaCambio,precioCompra,monedaCompra,monedaVenta) VALUES(?,?,?,?,?,?,?,?,?,?)";
+			+ " totalVenta, bandera, tasaCambio,precioCompra,monedaCompra,monedaVenta,importeDolarisado) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 		try {
 			pst = this.cn.prepareStatement(this.consulta);
 			pst.setInt(1, idFactura);
@@ -213,7 +224,12 @@ public class Facturacion extends Conexiondb {
 			pst.setFloat(7, precioDolar);
 			pst.setFloat(8, this.precioCompraInfo);
 			pst.setString(9, this.monedaCompraInfo);
-			pst.setString(10, this.monedaVentaInfo);
+			if (this.dolarizado == 1) {
+				pst.setString(10, "Dolar");
+			} else {
+				pst.setString(10, this.monedaVentaInfo);
+			}
+			pst.setInt(11, this.dolarizado);
 			this.banderin = pst.executeUpdate();
 			if (banderin > 0) {
 				//JOptionPane.showMessageDialog(null, "detalle guardado");
@@ -233,9 +249,24 @@ public class Facturacion extends Conexiondb {
 
 	public DefaultTableModel BusquedaGeneralProductoVender(String buscar) {
 		cn = Conexion();
-		this.consulta = "SELECT productos.id, productos.codigoBarra, productos.nombre AS nombreProducto, precioVenta, monedaVenta, fechaVencimiento, stock, ubicacion, productos.descripcion, categorias.nombre AS nombreCategoria, marca.nombre as nombreMarca FROM productos LEFT JOIN categorias ON(productos.categoria=categorias.id) LEFT JOIN marca ON(productos.marca=marca.id) WHERE CONCAT(productos.codigoBarra, productos.nombre) LIKE '%" + buscar + "%'";
+		this.consulta = "SELECT productos.id, productos.codigoBarra, productos.nombre AS nombreProducto, precioVenta, monedaVenta,"
+			+ " fechaVencimiento, stock, ubicacion, productos.descripcion, categorias.nombre AS nombreCategoria, marca.nombre as nombreMarca"
+			+ " FROM productos LEFT JOIN categorias ON(productos.categoria=categorias.id) LEFT JOIN marca ON(productos.marca=marca.id) WHERE"
+			+ " CONCAT(productos.codigoBarra, productos.nombre) LIKE '%" + buscar + "%'";
 		String[] registros = new String[11];
-		String[] titulos = {"Id", "Codigo Barra", "Nombre", "precioVenta", "Moneda", "Fecha Vencimiento", "Stock", "Categoria", "marca", "Ubicacion", "Descripcion"};
+		String[] titulos = {
+			"Id",
+			"Codigo Barra",
+			"Nombre",
+			"precioVenta",
+			"Moneda",
+			"Fecha Vencimiento",
+			"Stock",
+			"Categoria",
+			"marca",
+			"Ubicacion",
+			"Descripcion"
+		};
 		modelo = new DefaultTableModel(null, titulos) {
 			@Override
 			public boolean isCellEditable(int row, int col) {
@@ -568,6 +599,42 @@ public class Facturacion extends Conexiondb {
 				if (this.monedaVenta.equals("Dolar")) {
 					importe = importe * precioDolar;
 				}
+				producto[5] = formato.format(importe);
+			}
+			this.cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + " en la funcion obtenerPorCodBarra En modelo facturacion");
+		}
+	}
+
+	public void obtenerPorCodBarraPrecioDolarisado(String codBarra, float precioDolar) {
+		DecimalFormat formato = new DecimalFormat("#############.00");
+		this.producto = new String[6];
+		float importe;
+		this.cn = Conexion();
+		this.consulta = "SELECT id,codigoBarra, nombre, precioVenta, monedaCompra, stock FROM productos WHERE codigoBarra = ?";
+		try {
+			this.pst = this.cn.prepareStatement(this.consulta);
+			this.pst.setString(1, codBarra);
+			ResultSet rs = this.pst.executeQuery();
+			while (rs.next()) {
+				producto[0] = rs.getString("id");
+				producto[1] = rs.getString("codigoBarra");
+				producto[2] = "1.0";
+				producto[3] = rs.getString("nombre");
+				producto[4] = rs.getString("precioVenta");
+				this.stock = rs.getFloat("stock");
+				this.monedaVenta = rs.getString("monedaCompra");
+			}
+			//producto[2] = Cantidad;
+			if (producto[2] == null || producto[4] == null) {
+
+			} else {
+				importe = Float.parseFloat(producto[2]) * Float.parseFloat(producto[4]);
+				if (!this.monedaVenta.equals("Dolar")) {
+					importe = (Float.parseFloat(producto[4]) / precioDolar);
+				}
+				producto[4] = formato.format(importe);
 				producto[5] = formato.format(importe);
 			}
 			this.cn.close();

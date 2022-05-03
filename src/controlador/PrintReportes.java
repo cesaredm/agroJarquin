@@ -65,7 +65,7 @@ public class PrintReportes extends CtrlImprimir{
             + "{{producto}}\n"
             + "\n\n\n\n\n";
 
-    public void llenarTicketDiario(String NombreTienda, String fecha, String base, String ventasEfectivo, String ventasT, String pagosE, String pagosT, String ingresosE, String creditos, String egreso, String existCaja, String bancos, String totalV, String DV, String DC, String PDC, String PDV, String TCDV, String TCDC, String cordobas) {
+    public void llenarTicketDiario(String NombreTienda, String fecha, String base, String ventasEfectivo, String ventasT, String pagosE, String pagosT, String ingresosE, String creditos, String egreso, String existCaja, String bancos, String totalV) {
         //DV = dolaresVendidos DC = dolaresComprados PDV = precioDolarVenta PDC = precioDolarCompra TCDV = total de cordobas por dolares vendidos TCDC = total de cordobas por dolares comprados
          this.nombreTienda = NombreTienda;
          this.contentTicketDiario = ""
@@ -84,9 +84,6 @@ public class PrintReportes extends CtrlImprimir{
             + "Total Bancos                       "+bancos+"\n"
             + "Total efectivo en caja             "+existCaja+"\n"
             + "-------------------------------------------\n"
-            + "Dólares   $"+DV+" x "+PDV+"  "+TCDV+"\n"
-            + "Dólares   $"+DC+" x "+PDC+"  "+TCDC+"\n"
-            + "Córdobas                   C$"+cordobas+"\n"
             + "..\n\n\n\n\n";
     }
 

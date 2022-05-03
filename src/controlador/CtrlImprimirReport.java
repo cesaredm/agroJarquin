@@ -84,19 +84,20 @@ public class CtrlImprimirReport extends PrintReportes implements ActionListener 
         String nombreTienda = info.getNombre();
         Date fechaInicio = menu.jcFechaReporteDario.getDate();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-YYYY");
-        String fechaR = sdf.format(fechaInicio), base = menu.lblBase.getText(), ventasE = menu.lblVentasEfectivoDiario.getText(), ventasT = menu.lblVentasTarjetaDiario.getText(),
-                pagosE = menu.lblIngresosPagosEfectivoDiario.getText(), pagosT = menu.lblIngresosPagosTarjetaDiario.getText(),
-                creditos = menu.lblCreditosDiarios.getText(), egresos = menu.lblEgresosDiarios.getText(), existCaja = menu.lblTotalExistenciaCajaDiario.getText(),
-                bancos = menu.lblIngresosBancosDiario.getText(), totalV = menu.lbltotalVendidoDiario.getText(),
-                ingresosE = menu.lblIngresoEfectivo.getText(),
-                cordobas = menu.lblDiferenciaEnCordobas.getText(),
-                DV = menu.lblCantidadDolares.getText(),
-                DC = menu.lblCantidadCordobas.getText(),
-                PDC = menu.lblPrecioCompraDolarEnCordobas.getText(),
-                PDV = menu.lblPrecioVentaDolarEnCordobas.getText(),
-                TCDV = menu.lblTotalCordobasPorVentaDolar.getText(),
-                TCDC = menu.lblTotalCordobasPorCompraDolar.getText();
-        llenarTicketDiario(nombreTienda, fechaR, base, ventasE, ventasT, pagosE, pagosT, ingresosE, creditos, egresos, existCaja, bancos, totalV, DV, DC, PDC, PDV, TCDV,TCDC, cordobas);
+        String fechaR = sdf.format(fechaInicio),
+		base = menu.lblBase.getText(),
+		ventasE = menu.lblVentasEfectivoDiario.getText(),
+		ventasT = menu.lblVentasTarjetaDiario.getText(),
+                pagosE = menu.lblIngresosPagosEfectivoDiario.getText(),
+		pagosT = menu.lblIngresosPagosTarjetaDiario.getText(),
+                creditos = menu.lblCreditosDiarios.getText(),
+		egresos = menu.lblEgresosDiarios.getText(),
+		existCaja = menu.lblTotalExistenciaCajaDiario.getText(),
+                bancos = menu.lblIngresosBancosDiario.getText(),
+		totalV = menu.lbltotalVendidoDiario.getText(),
+                ingresosE = menu.lblIngresoEfectivo.getText();
+                
+        llenarTicketDiario(nombreTienda, fechaR, base, ventasE, ventasT, pagosE, pagosT, ingresosE, creditos, egresos, existCaja, bancos, totalV);
         try {
             print("Diario");
         } catch (Exception err) {

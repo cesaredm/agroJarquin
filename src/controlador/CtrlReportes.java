@@ -295,7 +295,6 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
                 dolaresVendidos = 0,
                 totalCordobasPorCompraDolar = 0,
                 totalCordobasPorVentaDolar = 0,
-                diferenciaEnCordobas = 0,
                 utilidad = 0;
         float precioCompraDolar = Float.parseFloat(menu.txtPrecioDolarCompra.getText()),
                 precioVentaDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText());
@@ -312,11 +311,13 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
         //ingresos por pagos cobrados con tarjeta
         ingresosPagoT = reportes.totalPagosTarjetaDiario(fechaInicio);
         //ingresos totales diarios en efectivo
-        ingresosEfectivo = reportes.ingresoEfectivoCajaDiario(fechaInicio) + reportes.totalPagosEfectivoDiario(fechaInicio) + reportes.ingresoDiarioEfectivo(fechaInicio);
+        ingresosEfectivo = reportes.ingresoEfectivoCajaDiario(fechaInicio) +
+		reportes.totalPagosEfectivoDiario(fechaInicio) +
+		reportes.ingresoDiarioEfectivo(fechaInicio) + 
+		reportes.ingresoEfectivoDolarCajaDiario(fechaInicio);
         //ingreso a bancos por ventas con tarjeta y pagos con tarjeta diarios
         Ingresosbancos = reportes.IngresoAbancosDiario(fechaInicio) + reportes.totalPagosTarjetaDiario(fechaInicio);
         //creditos realizados 
-        //creditos = reportes.TotalCreditosDiario(fechaInicio)-(reportes.totalPagosEfectivoDiario(fechaInicio) + reportes.totalPagosTarjetaDiario(fechaInicio));
         creditos = reportes.TotalCreditosDiario(fechaInicio);
         //egresos realizados
         egresos = reportes.TotalGastosDiario(fechaInicio);
@@ -324,7 +325,8 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
         totalVendidio = reportes.IngresosTotalesDiario(fechaInicio);
         //Margen de utilidad
         reportes.setPrecioDolar(precioVentaDolar);
-        utilidad = reportes.precioVenta(fechaInicio);
+        //utilidad = reportes.precioVenta(fechaInicio);
+	utilidad = reportes.utilidades(fechaInicio, fechaInicio);
         //existencia real en caja
         exisCaja = (ingresosEfectivo + base) - egresos;
         //ejecutar funcion para obtener los dolares y cordobas recibidos
@@ -339,10 +341,10 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
         totalCordobasPorCompraDolar = dolaresComprados * precioCompraDolar;
         totalCordobasPorVentaDolar = dolaresVendidos * precioVentaDolar;
         //difencia en cordobas para el cuadre del reporte diario
-        diferenciaEnCordobas = exisCaja - (totalCordobasPorCompraDolar+totalCordobasPorVentaDolar);
         //llenar los lbls
         menu.lblBase.setText("" + this.formato.format(base));
         menu.lblVentasEfectivoDiario.setText("" + this.formato.format(ingresosVentaE));
+	menu.lblVentasEfectivoDolarDiario.setText(this.formato.format(this.reportes.ingresoEfectivoDolarCajaDiario(fechaInicio)));
         menu.lblVentasTarjetaDiario.setText("" + this.formato.format(ingresosVentasT));
         menu.lblIngresosPagosEfectivoDiario.setText("" + this.formato.format(ingresosPagosE));
         menu.lblIngresosPagosTarjetaDiario.setText("" + this.formato.format(ingresosPagoT));
@@ -353,13 +355,6 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
         menu.lblIngresosBancosDiario.setText("" + this.formato.format(Ingresosbancos));
         menu.lbltotalVendidoDiario.setText("" + this.formato.format(totalVendidio));
         menu.lblTotalUtilidadDiario.setText(""+this.formato.format(utilidad));
-        menu.lblCantidadCordobas.setText("" + this.formato.format(dolaresComprados));
-        menu.lblCantidadDolares.setText("" + this.formato.format(dolaresVendidos));
-        menu.lblPrecioCompraDolarEnCordobas.setText(""+precioCompraDolar);
-        menu.lblPrecioVentaDolarEnCordobas.setText(""+precioVentaDolar);
-        menu.lblTotalCordobasPorCompraDolar.setText(""+this.formato.format(totalCordobasPorCompraDolar));
-        menu.lblTotalCordobasPorVentaDolar.setText(""+this.formato.format(totalCordobasPorVentaDolar));
-        menu.lblDiferenciaEnCordobas.setText(""+this.formato.format(diferenciaEnCordobas));
     }
 
     //funcion para filtros de reportes por rangos
@@ -446,10 +441,6 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
     {
         long f1 = fecha1.getTime();//
         java.sql.Date fechaInicio = new java.sql.Date(f1);//convertir la fecha a formato sql
-        /*String totalCreditoMensual = reportes.TotalCreditosMensual(fechaInicio, fechaFinal);//obtengo el valor de total de creditos cn la funcion TotalCreditoMensula de la clase reortes
-        String totalGastos = reportes.TotalGastos(fechaInicio, fechaFinal);//total de gastos 
-        String totalPagos = reportes.totalPagos(fechaInicio, fechaFinal);//total pagos 
-        float creditosPendiente = Float.parseFloat(totalCreditoMensual) - Float.parseFloat(totalPagos);//refleja el creditos menos los pagos*/
         menu.tblReporte.getTableHeader().setFont(new Font("Sugoe UI", Font.PLAIN, 14));
         menu.tblReporte.getTableHeader().setOpaque(false);
         menu.tblReporte.getTableHeader().setBackground(new Color(69, 76, 89));
@@ -457,12 +448,8 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
         menu.tblReporte.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 35));
         try {
             menu.tblReporte.setModel(reportes.ReporteDiario(fechaInicio));
-            /*menu.lblTotalCreditosFiltroReporte.setText(String.valueOf(creditosPendiente));//lleno el lblTotalCreditoFiltroRepote con el  total creditos 
-            menu.lblGastos.setText(totalGastos);//lleno lblGastos con el total de gastos
-            menu.lblTotalPagos.setText(totalPagos);*/
-
         } catch (Exception err) {
-
+		err.printStackTrace();
         }
 
     }

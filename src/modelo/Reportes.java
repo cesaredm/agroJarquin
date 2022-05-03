@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -26,6 +27,7 @@ public class Reportes extends Conexiondb {
 	int banderin;
 	DefaultTableModel modelo;
 	DecimalFormat formato;
+	private float ventasDolarizadas;
 	private float Dolares, EgresoDolares, dolaresComprados, precioDolar;
 	String[] meses = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
@@ -52,6 +54,10 @@ public class Reportes extends Conexiondb {
 		return this.dolaresComprados;
 	}
 
+	public float getVentasDolarizadas(){
+		return this.ventasDolarizadas;
+	}
+
 //METODO PARA DETECTAR CARACTERES ESPECIALES DENTRO DEL CODIGO DE BARRAS
     public float CleanChars(String str){
         char[] charSearch = {','};
@@ -72,9 +78,9 @@ public class Reportes extends Conexiondb {
 	//mostrar facturas realizadas por dia 
 	public DefaultTableModel ReporteDiario(Date Fecha) {
 		cn = Conexion();
-		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id as idCredito, cajas.caja, facturas.anotaciones from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? ORDER BY facturas.id DESC";
-		String[] Resultados = new String[9];
-		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja", "N. fact. M"};
+		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id as idCredito, cajas.caja, facturas.anotaciones,totalDolarisado from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? ORDER BY facturas.id DESC";
+		String[] Resultados = new String[10];
+		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja", "N. fact. M","Dolarizada"};
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -94,6 +100,11 @@ public class Reportes extends Conexiondb {
 				Resultados[6] = rs.getString("idCredito");
 				Resultados[7] = rs.getString("caja");
 				Resultados[8] = rs.getString("anotaciones");
+				if(rs.getString("totalDolarisado") != null && rs.getInt("totalDolarisado") == 1){
+					Resultados[9] = "si";
+				}else{
+					Resultados[9] = "no";
+				}
 				modelo.addRow(Resultados);
 			}
 			cn.close();
@@ -108,7 +119,10 @@ public class Reportes extends Conexiondb {
 		cn = Conexion();
 		String[] registros = new String[8];
 		String[] titulos = {"Factura", "Fecha", "Iva", "Total", "Comprador", "Forma Pago", "N° Credito"};
-		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id AS idCredito, cajas.caja from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha BETWEEN ? AND ? ORDER BY facturas.id";
+		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta,"
+			+ " creditos.id AS idCredito, cajas.caja from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN"
+			+ " creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha"
+			+ " BETWEEN ? AND ? ORDER BY facturas.id";
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -671,7 +685,9 @@ public class Reportes extends Conexiondb {
 	public float ingresoEfectivoCajaDiario(Date fecha1) {
 		float total = 0;
 		cn = Conexion();
-		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas INNER JOIN formapago ON(formapago.id=facturas.tipoVenta) INNER JOIN cajas ON(facturas.caja=cajas.id) WHERE fecha = ? AND formapago.tipoVenta = 'Efectivo' AND cajas.caja='CAJA1'";
+		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas AS f INNER JOIN formapago AS fp ON(fp.id=f.tipoVenta)"
+			+ " INNER JOIN cajas as c ON(f.caja=c.id) WHERE f.fecha = ? AND fp.tipoVenta = 'Efectivo' AND c.caja='CAJA1'"
+			+ " AND (f.totalDolarisado = 0 OR f.totalDolarisado is null)";
 		try {
 			PreparedStatement pst = this.cn.prepareStatement(this.consulta);
 			pst.setDate(1, fecha1);
@@ -682,6 +698,28 @@ public class Reportes extends Conexiondb {
 			this.cn.close();
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e + "funcion IngresoEfectivoCaja en modelo");
+		}
+		return total;
+	}
+
+	
+	public float ingresoEfectivoDolarCajaDiario(Date fecha1) {
+		float total = 0;
+		cn = Conexion();
+		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas AS f INNER JOIN formapago AS fp ON(fp.id=f.tipoVenta)"
+			+ " INNER JOIN cajas as c ON(f.caja=c.id) WHERE f.fecha = ? AND fp.tipoVenta = 'Efectivo' AND c.caja='CAJA1'"
+			+ " AND f.totalDolarisado = 1";
+		try {
+			PreparedStatement pst = this.cn.prepareStatement(this.consulta);
+			pst.setDate(1, fecha1);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				total = rs.getFloat("total");
+			}
+			this.cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + "funcion IngresoEfectivoCaja en modelo");
+			e.printStackTrace();
 		}
 		return total;
 	}
@@ -1015,14 +1053,7 @@ public class Reportes extends Conexiondb {
 			while (rs.next()) {
 				total = rs.getFloat("total");
 			}
-			/*System.out.println(total);
-			System.out.println(precioCompraDolar(fecha) + precioCompraCordobas(fecha));
-			System.out.println("-----------------------------------------------------");
-			System.out.println(precioCompraDolar(fecha));
-			System.out.println(precioCompraCordobas(fecha));
-			System.out.println(utilidadXpagos(fecha));*/
 			totalUtilidades = total - (precioCompraDolar(fecha) + precioCompraCordobas(fecha));
-			//System.out.println(totalUtilidades);
 			totalUtilidades = totalUtilidades + utilidadXpagos(fecha);
 			totalString = this.formato.format(totalUtilidades);
 			totalUtilidades = CleanChars(totalString);
@@ -1108,7 +1139,7 @@ public class Reportes extends Conexiondb {
 		String[] utilidades = new String[12];
 		String[] ventas = new String[12];
 		String[] titulos = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
-		float utilidad = 0, ventasCosto = 0;
+		float utilidad = 0, ventasCosto = 0, ventasNetas;
 		ResultSet rs;
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
@@ -1183,9 +1214,10 @@ public class Reportes extends Conexiondb {
 				}
 				rs = this.pst.executeQuery();
 				while (rs.next()) {
-					ventasCosto = rs.getFloat("cordobas") + rs.getFloat("dolar");
-					utilidad = rs.getFloat("ventas") - ventasCosto;
-					ventas[i] = this.formato.format(rs.getFloat("ventas"));
+					ventasCosto = rs.getFloat("costoCordobas") + rs.getFloat("costoDolar");
+					ventasNetas = rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar");
+					utilidad = ventasNetas - ventasCosto;
+					ventas[i] = this.formato.format(ventasNetas);
 					utilidades[i] = this.formato.format(utilidad);
 				}
 
@@ -1234,5 +1266,34 @@ public class Reportes extends Conexiondb {
 			}
 		}
 		return this.modelo;
+	}
+
+	public float utilidades(Date fecha1, Date fecha2){
+		float utilidad = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String fechaString1 = sdf.format(fecha1);
+		String fechaString2 = sdf.format(fecha2);
+		this.cn = Conexion();
+		this.consulta = "CALL utilidades(?,?)";
+		try {
+			this.pst = this.cn.prepareStatement(this.consulta);
+			this.pst.setString(1,fechaString1);
+			this.pst.setString(2,fechaString2);
+			ResultSet rs = this.pst.executeQuery();
+			while(rs.next()){
+				utilidad = (rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar")) - 
+					(rs.getFloat("costoCordobas") + rs.getFloat("costoDolar"));	
+				this.ventasDolarizadas = rs.getFloat("dolarizado");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				this.cn.close();
+			} catch (SQLException ex) {
+				Logger.getLogger(Reportes.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		return utilidad;
 	}
 }

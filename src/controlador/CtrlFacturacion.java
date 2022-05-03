@@ -1,7 +1,5 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * CLASE QUE SE ENCARGA DE TODAS LAS GESTIONES DE FACTURACION 
  */
 package controlador;
 
@@ -9,6 +7,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -34,7 +34,7 @@ import vista.IMenu;
  *
  * @author CESAR DIAZ MARADIAGA
  */
-public class CtrlFacturacion implements ActionListener, CaretListener, MouseListener, KeyListener {
+public class CtrlFacturacion implements ActionListener, CaretListener, MouseListener, KeyListener, ItemListener {
 
 	IMenu menu;
 	int permiso;
@@ -50,6 +50,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 	Reportes r;
 	Creditos c;
 	SpinnerNumberModel sModel;
+	boolean dolarisado;
 	JSpinner spiner;
 	static float total;
 	float subTotal, isv, descuento;
@@ -105,6 +106,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		this.menu.txtPagoCon.addKeyListener(this);
 		this.menu.txtCambio.addCaretListener(this);
 		this.menu.txtTotal.addCaretListener(this);
+		this.menu.cmbPrecioCompraVentaAdmin.addItemListener(this);
 		this.sModel = new SpinnerNumberModel();
 		this.sModel.setMinimum(0.00);
 		this.sModel.setValue(0.00);
@@ -126,44 +128,90 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		}
 	}
 
+	public void validacionAntesDeGuardarImprimir() {
+		String totalF = menu.txtTotal.getText();
+		String idCreditoL = menu.txtCreditoFactura.getText();
+		float saldo, sumar, limite;
+		if (!idCreditoL.equals("")) {
+			saldo = this.creditos.creditoPorCliente(idCreditoL);
+			limite = this.creditos.limiteCredito(idCreditoL);
+			sumar = saldo + Float.parseFloat(totalF);
+			if (sumar > limite) {
+				JOptionPane.showMessageDialog(
+					null,
+					"Estaá excediendo el límite de crédito",
+					"Advertencia",
+					JOptionPane.WARNING_MESSAGE
+				);
+				menu.btnGuardarFactura.setEnabled(false);
+			} else {
+				guardarFactura();
+			}
+		} else {
+			guardarFactura();
+		}
+	}
+
+	public void validacionAntesDeGuardarSinImprimir() {
+		String totalF = menu.txtTotal.getText();
+		String idCreditoL = menu.txtCreditoFactura.getText();
+		float saldo, sumar, limite;
+		if (!idCreditoL.equals("")) {
+			saldo = this.creditos.creditoPorCliente(idCreditoL);
+			limite = this.creditos.limiteCredito(idCreditoL);
+			sumar = saldo + Float.parseFloat(totalF);
+			if (sumar > limite) {
+				JOptionPane.showMessageDialog(
+					null,
+					"Estaá excediendo el límite de crédito",
+					"Advertencia",
+					JOptionPane.WARNING_MESSAGE
+				);
+				menu.btnGuardarFactura.setEnabled(false);
+			} else {
+				guardarFacturaSinImprimir();
+			}
+		} else {
+			guardarFacturaSinImprimir();
+		}
+	}
+
+	public void validacionDePermisoAntesDeAgregar() {
+		String code = this.menu.txtCodBarraFactura.getText();
+		switch (this.permiso) {
+			case 1: {
+				String precio = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
+				if (!code.equals("")) {
+					if (precio.equals("Precio venta")) {
+						AgregarProductoFacturaEnter("venta");
+					} else if (precio.equals("Precio compra")) {
+						AgregarProductoFacturaEnter("compra");
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Escriba un código de barras..");
+				}
+			}
+			break;
+			case 2: {
+				String precio = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
+				if (!code.equals("")) {
+					AgregarProductoFacturaEnter("venta");
+				} else {
+					JOptionPane.showMessageDialog(null, "Escriba un código de barras..");
+				}
+			}
+			break;
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		if (e.getSource() == menu.btnGuardarFactura) {
-			String totalF = menu.txtTotal.getText();
-			String idCreditoL = menu.txtCreditoFactura.getText();
-			float saldo, sumar, limite;
-			if (!idCreditoL.equals("")) {
-				saldo = this.creditos.creditoPorCliente(idCreditoL);
-				limite = this.creditos.limiteCredito(idCreditoL);
-				sumar = saldo + Float.parseFloat(totalF);
-				if (sumar > limite) {
-					JOptionPane.showMessageDialog(null, "Está excediendo el límite de crédito", "Advertencia", JOptionPane.WARNING_MESSAGE);
-					menu.btnGuardarFactura.setEnabled(false);
-				} else {
-					guardarFactura();
-				}
-			} else {
-				guardarFactura();
-			}
+			this.validacionAntesDeGuardarImprimir();
 		}
 		if (e.getSource() == menu.btnCobrarSinImprimir) {
-			String totalF = menu.txtTotal.getText();
-			String idCreditoL = menu.txtCreditoFactura.getText();
-			float saldo, sumar, limite;
-			if (!idCreditoL.equals("")) {
-				saldo = this.creditos.creditoPorCliente(idCreditoL);
-				limite = this.creditos.limiteCredito(idCreditoL);
-				sumar = saldo + Float.parseFloat(totalF);
-				if (sumar > limite) {
-					JOptionPane.showMessageDialog(null, "Está excediendo el límite de crédito", "Advertencia", JOptionPane.WARNING_MESSAGE);
-					menu.btnGuardarFactura.setEnabled(false);
-				} else {
-					guardarFacturaSinImprimir();
-				}
-			} else {
-				guardarFacturaSinImprimir();
-			}
+			this.validacionAntesDeGuardarSinImprimir();
 		}
 		if (e.getSource() == menu.btnActualizarFactura) {
 			actualizarFactura();
@@ -190,31 +238,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			limpiarFormularioClienteFactura();
 		}
 		if (e.getSource() == menu.btnAgregar) {
-			String code = this.menu.txtCodBarraFactura.getText();
-			switch (this.permiso) {
-				case 1: {
-					String precio = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
-					if (!code.equals("")) {
-						if (precio.equals("Precio venta")) {
-							AgregarProductoFacturaEnter("venta");
-						} else if (precio.equals("Precio compra")) {
-							AgregarProductoFacturaEnter("compra");
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "Escriba un código de barras..");
-					}
-				}
-				break;
-				case 2: {
-					String precio = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
-					if (!code.equals("")) {
-						AgregarProductoFacturaEnter("venta");
-					} else {
-						JOptionPane.showMessageDialog(null, "Escriba un código de barras..");
-					}
-				}
-				break;
-			}
+			this.validacionDePermisoAntesDeAgregar();
 		}
 		if (e.getSource() == menu.addDescuento) {
 			addDescuento();
@@ -253,41 +277,26 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		}
 	}
 
+	public void calculosParaCambio() {
+		String total = menu.txtTotal.getText(), pagoCon = menu.txtPagoCon.getText();
+		float cambio = 0;
+		if (menu.isNumeric(pagoCon)) {
+			cambio = Float.parseFloat(pagoCon) - Float.parseFloat(total);
+			menu.txtCambio.setText(String.valueOf(cambio));
+		} else if (pagoCon.equals("")) {
+			menu.txtCambio.setText("");
+		}
+	}
+
 	@Override
 	public void caretUpdate(CaretEvent e) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		if (e.getSource() == menu.txtPagoCon) {
-			String total = menu.txtTotal.getText(), pagoCon = menu.txtPagoCon.getText();
-			float cambio = 0;
-			if (menu.isNumeric(pagoCon)) {
-				cambio = Float.parseFloat(pagoCon) - Float.parseFloat(total);
-				menu.txtCambio.setText(String.valueOf(cambio));
-			} else if (pagoCon.equals("")) {
-				menu.txtCambio.setText("");
-			}
-		}
-		if (e.getSource() == menu.txtTotal) {
-//            String totalF = menu.txtTotal.getText();
-//            String idCreditoL = menu.txtCreditoFactura.getText();
-//            float saldo, sumar, limite;
-//            if (!totalF.equals("") && !idCreditoL.equals("")) {
-//                saldo = this.creditos.creditoPorCliente(idCreditoL)[0];
-//                limite = this.creditos.creditoPorCliente(idCreditoL)[1];
-//                sumar = saldo + Float.parseFloat(totalF);
-//                if (sumar>limite) {
-//                    JOptionPane.showMessageDialog(null, "Esta excediendo el limite de credito","Advertencia", JOptionPane.WARNING_MESSAGE);
-//                    menu.btnGuardarFactura.setEnabled(false);
-//                }
-//            } else {
-//                
-//            }
-
+			this.calculosParaCambio();
 		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		if (e.getSource() == menu.tblAddProductoFactura) {
 			switch (this.permiso) {
 				case 1: {
@@ -296,6 +305,8 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 						addProductoFactura();
 					} else if (condicion.equals("Precio compra")) {
 						addProductoFacturaAdmin();
+					} else if (condicion.equals("Factura Dolarizada")) {
+						addProductoFacturaDolarizado();
 					}
 				}
 				break;
@@ -317,25 +328,21 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 	@Override
 	public void mousePressed(MouseEvent e
 	) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e
 	) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e
 	) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e
 	) {
-		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
@@ -354,6 +361,8 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 							AgregarProductoFacturaEnter("venta");
 						} else if (precio.equals("Precio compra")) {
 							AgregarProductoFacturaEnter("compra");
+						} else if (precio.equals("Factura Dolarizada")) {
+							AgregarProductoFacturaEnter("dolarizada");
 						}
 					} else {
 						JOptionPane.showMessageDialog(null, "Escriba un código de barras..");
@@ -413,27 +422,28 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			//guardara la factura solo si el boton guardar factura esta habilatado
 			if (menu.btnGuardarFactura.isEnabled()) {
 				Date fecha;
+				int dolarizado;
 				String[] ArregloImprimir = new String[filas];
 				String factura = "",
-				     id,
-				     cantidad,
-				     precio,
-				     totalDetalle,
-				     idCredito,
-				     iva,
-				     totalFactura,
-				     formaPago,
-				     idFormaPago,
-				     comprador,
-				     cliente,
-				     subtotal,
-				     nombreProduct,
-				     tipoVenta,
-				     pagoCon,
-				     cambio,
-				     anotaciones,
-				     tasaCambio,
-				     bandera;//variables para capturar los datos a guardar
+					id,
+					cantidad,
+					precio,
+					totalDetalle,
+					idCredito,
+					iva,
+					totalFactura,
+					formaPago,
+					idFormaPago,
+					comprador,
+					cliente,
+					subtotal,
+					nombreProduct,
+					tipoVenta,
+					pagoCon,
+					cambio,
+					anotaciones,
+					tasaCambio,
+					bandera;//variables para capturar los datos a guardar
 				pagoCon = menu.txtPagoCon.getText();
 				bandera = (menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString().equals("Precio compra")) ? "c" : "v";
 				cambio = menu.txtCambio.getText();
@@ -457,7 +467,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				idFormaPago = this.factura.ObtenerFormaPago(formaPago);
 
 				tasaCambio = this.menu.txtPrecioDolarVenta.getText();
-				System.out.println(tasaCambio);
+				dolarizado = (this.dolarisado) ? 1 : 0;
 				//envio los datos a guardar de la factura
 				this.factura.setCaja(1);
 				this.factura.setFecha(fechaFactura);
@@ -467,6 +477,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				this.factura.setIva(iva);
 				this.factura.setTotal(totalFactura);
 				this.factura.setAnotacion(anotaciones);
+				this.factura.setDolarizado(dolarizado);
 				this.factura.GuardarFactura();
 				//for para recorrer la tabla factura
 				for (int cont = 0; cont < filas; cont++) {
@@ -485,15 +496,16 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					this.factura.setImporteDetalle(totalDetalle);
 					this.factura.setBandera(bandera);
 					this.factura.setPrecioDolar(Float.parseFloat(tasaCambio));
+					this.factura.setDolarizado(dolarizado);
 					this.factura.DetalleFactura();
 //                    			validar si el nombre del producto es mayor de 10 caracteres
 					if (nombreProduct.length() > 10) {
 						nombreProduct = nombreProduct.substring(0, 10);
 					}
 					ArregloImprimir[cont] = nombreProduct
-					     + " " + cantidad
-					     + "   " + precio
-					     + "  " + totalDetalle + "\n";
+						+ " " + cantidad
+						+ "   " + precio
+						+ "  " + totalDetalle + "\n";
 				}
 				//Actualizo el campo numero de factura con la funcion obtenerIdFactura
 				menu.txtNumeroFactura.setText(this.factura.ObtenerIdFactura());
@@ -516,18 +528,18 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				creditos.MostrarCreditos("");
 				creditos.MostrarCreditosAddFactura("");
 				Imprimir(
-				     factura,
-				     comprador,
-				     cliente,
-				     tipoVenta,
-				     formaPago,
-				     ArregloImprimir,
-				     subtotal,
-				     iva,
-				     totalFactura,
-				     fechaFactura.toString(),
-				     pagoCon,
-				     cambio
+					factura,
+					comprador,
+					cliente,
+					tipoVenta,
+					formaPago,
+					ArregloImprimir,
+					subtotal,
+					iva,
+					totalFactura,
+					fechaFactura.toString(),
+					pagoCon,
+					cambio
 				);
 			} else {
 				JOptionPane.showMessageDialog(null, "La factura esta vacia");
@@ -545,27 +557,28 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			//guardara la factura solo si el boton guardar factura esta habilatado
 			if (menu.btnGuardarFactura.isEnabled()) {
 				Date fecha;
+				int dolarizado;
 				String[] ArregloImprimir = new String[filas];
 				String factura = "",
-				     id,
-				     cantidad,
-				     precio,
-				     totalDetalle,
-				     idCredito,
-				     iva,
-				     totalFactura,
-				     formaPago,
-				     idFormaPago,
-				     comprador,
-				     cliente,
-				     subtotal,
-				     nombreProduct,
-				     tipoVenta,
-				     pagoCon,
-				     cambio,
-				     anotaciones,
-				     tasaCambio,
-				     bandera;//variables para capturar los datos a guardar
+					id,
+					cantidad,
+					precio,
+					totalDetalle,
+					idCredito,
+					iva,
+					totalFactura,
+					formaPago,
+					idFormaPago,
+					comprador,
+					cliente,
+					subtotal,
+					nombreProduct,
+					tipoVenta,
+					pagoCon,
+					cambio,
+					anotaciones,
+					tasaCambio,
+					bandera;//variables para capturar los datos a guardar
 				pagoCon = menu.txtPagoCon.getText();
 				bandera = (menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString().equals("Precio compra")) ? "c" : "v";
 				cambio = menu.txtCambio.getText();
@@ -588,6 +601,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				//capturo el id de la forma de pago que retorna la funcion obtenerformapago 
 				idFormaPago = this.factura.ObtenerFormaPago(formaPago);
 				tasaCambio = this.menu.txtPrecioDolarVenta.getText();
+				dolarizado = (this.dolarisado) ? 1 : 0;
 				//envio los datos a guardar de la factura
 				this.factura.setCaja(1);
 				this.factura.setFecha(fechaFactura);
@@ -598,6 +612,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				this.factura.setTotal(totalFactura);
 				this.factura.setAnotacion(anotaciones);
 				this.factura.setPrecioDolar(Float.parseFloat(tasaCambio));
+				this.factura.setDolarizado(dolarizado);
 				this.factura.GuardarFactura();
 				//for para recorrer la tabla factura
 				for (int cont = 0; cont < filas; cont++) {
@@ -615,15 +630,16 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					this.factura.setCantidad(cantidad);
 					this.factura.setImporteDetalle(totalDetalle);
 					this.factura.setBandera(bandera);
+					this.factura.setDolarizado(dolarizado);
 					this.factura.DetalleFactura();
 //                    			validar si el nombre del producto es mayor de 10 caracteres
 					if (nombreProduct.length() > 10) {
 						nombreProduct = nombreProduct.substring(0, 10);
 					}
 					ArregloImprimir[cont] = nombreProduct
-					     + " " + cantidad
-					     + "   " + precio
-					     + "  " + totalDetalle + "\n";
+						+ " " + cantidad
+						+ "   " + precio
+						+ "  " + totalDetalle + "\n";
 				}
 				//Actualizo el campo numero de factura con la funcion obtenerIdFactura
 				menu.txtNumeroFactura.setText(this.factura.ObtenerIdFactura());
@@ -686,6 +702,10 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					this.factura.obtenerPorCodBarraPrecioCompra(codBarra);
 				}
 				break;
+				case "dolarizada": {
+					this.factura.obtenerPorCodBarraPrecioDolarisado(codBarra, Float.parseFloat(precioDolar));
+				}
+				break;
 			}
 
 			if (this.factura.getProducto()[0] != null) {
@@ -697,8 +717,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					for (int i = 0; i < filas; i++) {
 						totalImports += Float.parseFloat(this.modelo.getValueAt(i, 5).toString());
 					}
-					sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText());//concatenacion para sacar el valor 1.xx para sacar el iva
-					//obtengo el IVA en entero "15" o cualquier que sea el impuesto
+					sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText());
 					porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
 					this.total = totalImports;
 					this.isv = ((this.total / sacarImpuesto) * porcentajeImp) / 100;
@@ -829,9 +848,9 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		try {
 			String id, codigo, nombre, precio, cantidad, total, importe, stockA, monedaVenta = "";
 			float imp = 0, calcula, impuesto, descProduct = 0, stock, cantidadPVender,
-			     precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
-			     sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText()),//concatenacion para sacar el valor 1.xx para sacar el iva
-			     porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
+				precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
+				sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText()),//concatenacion para sacar el valor 1.xx para sacar el iva
+				porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
 
 			if (filaseleccionada == -1) {
 
@@ -964,12 +983,12 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		int filaseleccionada = menu.tblAddProductoFactura.getSelectedRow();
 		try {
 			String id, codigo, nombre, cantidad, total, importe, stockA, monedaVenta = "",
-			     precioAgregar = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
+				precioAgregar = menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString();
 			float imp = 0, calcula, impuesto, descProduct = 0, stock, cantidadPVender,
-			     precio,
-			     precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
-			     sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText()),//concatenacion para sacar el valor 1.xx para sacar el iva
-			     porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
+				precio,
+				precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
+				sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText()),//concatenacion para sacar el valor 1.xx para sacar el iva
+				porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
 
 			if (filaseleccionada == -1) {
 
@@ -1028,7 +1047,12 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					}
 
 				} else {
-					JOptionPane.showMessageDialog(null, "No hay suficiente producto en stock para realizar esta venta", "Advertencia", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(
+						null,
+						"No hay suficiente producto en stock para realizar esta venta",
+						"Advertencia",
+						JOptionPane.WARNING_MESSAGE
+					);
 				}
 			}
 		} catch (Exception err) {
@@ -1068,20 +1092,20 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 
 	public void addMasProducto() {
 		String nombre = "",
-		     id = "",
-		     codBarra = "",
-		     iu;
+			id = "",
+			codBarra = "",
+			iu;
 		float cantidadIngresar = 0,
-		     cantidadActual = 0,
-		     precio = 0,
-		     cantidadUpdate = 0,
-		     importeUpdate = 0,
-		     totalImports = 0,
-		     precioDolar = 0,
-		     sacarImpuesto = 0,
-		     porcentajeImp = 0;
+			cantidadActual = 0,
+			precio = 0,
+			cantidadUpdate = 0,
+			importeUpdate = 0,
+			totalImports = 0,
+			precioDolar = 0,
+			sacarImpuesto = 0,
+			porcentajeImp = 0;
 		int filas = 0,
-		     filaseleccionada = 0;
+			filaseleccionada = 0;
 		try {
 			this.modelo = (DefaultTableModel) menu.tblFactura.getModel();
 			filaseleccionada = menu.tblFactura.getSelectedRow();
@@ -1145,14 +1169,14 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		int filaseleccionada = 0, filas = 0, confirmar = 0;
 		//variables para las operaciones
 		float cantidad = 0,
-		     precioUpdate = 0,
-		     precio = 0,
-		     importeUpdate = 0,
-		     totalImports = 0,
-		     sacarImpuesto = 0,
-		     porcentajeImp,
-		     precioDolar = 0,
-		     descuento = 0;
+			precioUpdate = 0,
+			precio = 0,
+			importeUpdate = 0,
+			totalImports = 0,
+			sacarImpuesto = 0,
+			porcentajeImp,
+			precioDolar = 0,
+			descuento = 0;
 		//variable para obtener la filaseleccionada de la tabla factura
 		filaseleccionada = menu.tblFactura.getSelectedRow();
 		try {
@@ -1179,11 +1203,11 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					modelProduct.precioMinimo(id);
 					if (precioUpdate < modelProduct.getPrecioMinimo()) {
 						JOptionPane.showMessageDialog(
-						     null,
-						     "Esta excediendo el precio minimo ´" + modelProduct.getPrecioMinimo()
-						     + "´ del producto con el descuento aplicado",
-						     "Advertencia",
-						     JOptionPane.WARNING_MESSAGE
+							null,
+							"Esta excediendo el precio minimo ´" + modelProduct.getPrecioMinimo()
+							+ "´ del producto con el descuento aplicado",
+							"Advertencia",
+							JOptionPane.WARNING_MESSAGE
 						);
 					} else {
 						//obtengo desde el modelo facturta la moneda de venta de el producto na aplicarle el aumento
@@ -1417,17 +1441,17 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			{
 				Date fecha;
 				String factura,
-				     id,
-				     cantidad,
-				     precio,
-				     totalDetalle,
-				     idCredito,
-				     iva,
-				     totalFactura,
-				     formaPago,
-				     idFormaPago,
-				     nombreComprador,
-				     anotaciones;//variables para capturar los datos a guardar
+					id,
+					cantidad,
+					precio,
+					totalDetalle,
+					idCredito,
+					iva,
+					totalFactura,
+					formaPago,
+					idFormaPago,
+					nombreComprador,
+					anotaciones;//variables para capturar los datos a guardar
 				fecha = menu.jcFechaFactura.getDate();//capturo la fecha del dateshooser
 				long fechaF = fecha.getTime();//
 				java.sql.Date fechaFactura = new java.sql.Date(fechaF);//convertir la fecha obtenida a formato sql
@@ -1510,18 +1534,18 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		this.modelo = (DefaultTableModel) menu.tblFactura.getModel();
 		//variables para obtener los valores que se ocupan para la actualizacion
 		String idFactura = "",
-		     idP = "",
-		     codBarra = "",
-		     nombreP = "",
-		     precioP = "",
-		     cantidadP = "",
-		     importe = "",
-		     pago = "",
-		     detalle = "",
-		     comprador = "",
-		     fecha = "",
-		     credito = "",
-		     anotaciones = "";
+			idP = "",
+			codBarra = "",
+			nombreP = "",
+			precioP = "",
+			cantidadP = "",
+			importe = "",
+			pago = "",
+			detalle = "",
+			comprador = "",
+			fecha = "",
+			credito = "",
+			anotaciones = "";
 		//convertir el formato sql a Date con simpleDateFormat
 		SimpleDateFormat spf = new SimpleDateFormat("yyyy-MM-dd");
 		//nD quiere decir numero de detalles es la variable que guarda el numero de detalles que van en la factura a editar
@@ -1693,14 +1717,14 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		int filaseleccionada = 0, filas = 0, confirmar = 0;
 		//variables para las operaciones
 		float cantidad = 0,
-		     precioUpdate = 0,
-		     precio = 0,
-		     importeUpdate = 0,
-		     totalImports = 0,
-		     sacarImpuesto = 0,
-		     porcentajeImp,
-		     precioDolar = 0,
-		     aumento = 0;
+			precioUpdate = 0,
+			precio = 0,
+			importeUpdate = 0,
+			totalImports = 0,
+			sacarImpuesto = 0,
+			porcentajeImp,
+			precioDolar = 0,
+			aumento = 0;
 		//variable para obtener la filaseleccionada de la tabla factura
 		filaseleccionada = menu.tblFactura.getSelectedRow();
 		try {
@@ -1727,11 +1751,11 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					modelProduct.precioMinimo(id);
 					if (precioUpdate < modelProduct.getPrecioMinimo()) {
 						JOptionPane.showMessageDialog(
-						     null,
-						     "Esta excediendo el precio minimo ´" + modelProduct.getPrecioMinimo()
-						     + "´ del producto con el descuento aplicado",
-						     "Advertencia",
-						     JOptionPane.WARNING_MESSAGE
+							null,
+							"Esta excediendo el precio minimo ´" + modelProduct.getPrecioMinimo()
+							+ "´ del producto con el descuento aplicado",
+							"Advertencia",
+							JOptionPane.WARNING_MESSAGE
 						);
 					} else {
 						//obtengo desde el modelo facturta la moneda de venta de el producto na aplicarle el aumento
@@ -1769,6 +1793,134 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			}
 		} catch (Exception err) {
 			JOptionPane.showMessageDialog(null, err + " en Agregar descuento al producto en factura");
+		}
+	}
+
+	public void addProductoFacturaDolarizado() {
+		int filaseleccionada = menu.tblAddProductoFactura.getSelectedRow();
+		try {
+			String id, codigo, nombre, total, importe, stockA, monedaVenta = "", cantidadString = "";
+			float imp = 0, calcula, precio,impuesto, descProduct = 0, stock, cantidadPVender, precioDolarizado = 0, setPrecio = 0,
+				cantidad,
+				precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
+				sacarImpuesto = Float.parseFloat(1 + "." + menu.lblImpuestoISV.getText()),
+				porcentajeImp = Float.parseFloat(menu.lblImpuestoISV.getText());// "descProduct = aumento de producto"
+
+			if (filaseleccionada != -1) {
+				this.modelo = (DefaultTableModel) menu.tblAddProductoFactura.getModel();
+				id = modelo.getValueAt(filaseleccionada, 0).toString();
+				codigo = modelo.getValueAt(filaseleccionada, 1).toString();
+				nombre = modelo.getValueAt(filaseleccionada, 2).toString();
+				precio = Float.parseFloat(modelo.getValueAt(filaseleccionada, 3).toString());
+
+				monedaVenta = (String) modelo.getValueAt(filaseleccionada, 4);
+				stock = Float.parseFloat(modelo.getValueAt(filaseleccionada, 6).toString());
+				cantidadString = JOptionPane.showInputDialog(null, "Cantidad:");
+				cantidad = (cantidadString.equals("")) ? 0 : Float.parseFloat(cantidadString);
+				//convertir a flota la variable cantidad 1006195
+				//validacion para la venta sugun lo que hay en stock osea no se pueda vender mas de lo que hay en stock
+				if (cantidad > 0 && cantidad <= stock) {
+					if (monedaVenta.equals("Córdobas")) {
+						precioDolarizado = precio / precioDolar;
+						precioDolarizado = Float.parseFloat(this.formato.format(precioDolarizado));
+						imp = (precioDolarizado * cantidad);//importe total de compra de producto
+						setPrecio = precioDolarizado;
+					} else if (monedaVenta.equals("Dolar")) {
+						imp = precio * cantidad;//importe total de compra de producto
+						setPrecio = precio;
+					}
+					importe = formato.format(imp);
+					//realizando los calculos de importe
+					this.modelo = (DefaultTableModel) menu.tblFactura.getModel();
+					//pasar producto de tabla productos a tabla de factura
+					String[] FilaElementos = {
+						id,
+						codigo,
+						this.formato.format(cantidad),
+						nombre,
+						this.formato.format(setPrecio),
+						importe
+					};
+					this.modelo.addRow(FilaElementos);
+					this.factura.Vender(id, String.valueOf(cantidad));//llamar procedimiento sql para vender
+//                                    calcula = (Float.parseFloat(importe));//convertir importe a float
+					int filas = this.modelo.getRowCount();
+					float totalImports = 0;
+					for (int i = 0; i < filas; i++) {
+						totalImports += Float.parseFloat(this.modelo.getValueAt(i, 5).toString());//calcular el total de factura
+					}
+					this.total = totalImports;
+					impuesto = ((this.total / sacarImpuesto) * porcentajeImp) / 100;//calcular el impuesto
+					this.isv = impuesto;//impuesto
+					this.subTotal = this.total - this.isv;//clacular subtotal de factura
+
+					menu.txtImpuesto.setText("" + formato.format(this.isv));//establecer el valor impuesto en el campo impuesto de factura
+					menu.txtSubTotal.setText("" + formato.format(this.subTotal));//establecer el valor impuesto en el campo sub total de factura
+					menu.txtTotal.setText("" + formato.format(this.total));//establecer el valor impuesto en el campo Total de factura
+					productos.MostrarProductosVender("");
+					menu.txtBuscarPorNombre.selectAll();
+					DeshabilitarBtnGuardarFactura();
+				} else {
+					JOptionPane.showMessageDialog(
+						null,
+						"No hay suficiente producto en stock para realizar esta venta",
+						"Advertencia",
+						JOptionPane.WARNING_MESSAGE
+					);
+				}
+			}
+		} catch (Exception err) {
+			err.printStackTrace();
+		}
+	}
+
+	/* 
+		funcion para no repetir los productos en la tabla factura 
+		-- en proceso
+	 */
+	public boolean actualizarProductoTableFactura(String id, float cant, float precioDolar, String moneda) {
+		boolean isAdd = true;
+		int filas = this.menu.tblFactura.getRowCount();
+		String producto;
+		float precio, cantidad, importe = 0;
+		this.modelo = (DefaultTableModel) this.menu.tblFactura.getModel();
+		if (filas > 0) {
+			for (int i = 0; i < filas; i++) {
+				producto = (String) this.modelo.getValueAt(i, 0);
+				if (producto.equals(id)) {
+					precio = Float.parseFloat(this.modelo.getValueAt(i, 4).toString());
+					cantidad = Float.parseFloat(this.modelo.getValueAt(i, 2).toString());
+					if (moneda.equals("Dolar")) {
+						importe = (cantidad + cant) * precio;
+						importe = importe * precioDolar;
+					} else {
+						importe = (cantidad + cant) * precio;
+					}
+					this.modelo.setValueAt(this.formato.format(importe), i, 5);
+					isAdd = true;
+				} else {
+					isAdd = false;
+				}
+			}
+		} else {
+			isAdd = false;
+		}
+		return isAdd;
+	}
+
+	public void sumarTotalFactura() {
+
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == this.menu.cmbPrecioCompraVentaAdmin) {
+			if (this.menu.cmbPrecioCompraVentaAdmin.getSelectedItem().toString().equals("Factura Dolarizada")) {
+				this.dolarisado = true;
+			} else {
+				this.dolarisado = false;
+			}
+
 		}
 	}
 
