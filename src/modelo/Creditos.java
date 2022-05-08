@@ -8,6 +8,8 @@ package modelo;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.text.DecimalFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -22,6 +24,11 @@ public class Creditos extends Conexiondb {
     String[] resgistros;
     PagosCreditos pagos;
     PreparedStatement pst;
+    private float creditoCordobas,
+	    creditoDolar,pagosDolar,
+	    pagosCordobas,
+	    saldoCordobas,
+	    saldoDolar;
     int banderin;
 
     public Creditos() {
@@ -31,6 +38,62 @@ public class Creditos extends Conexiondb {
         this.banderin = 0;
         this.pagos = new PagosCreditos();
     }
+
+	public PagosCreditos getPagos() {
+		return pagos;
+	}
+
+	public void setPagos(PagosCreditos pagos) {
+		this.pagos = pagos;
+	}
+
+	public float getCreditoDolar() {
+		return creditoDolar;
+	}
+
+	public void setCreditoDolar(float creditoDolar) {
+		this.creditoDolar = creditoDolar;
+	}
+
+	public float getPagosDolar() {
+		return pagosDolar;
+	}
+
+	public void setPagosDolar(float pagosDolar) {
+		this.pagosDolar = pagosDolar;
+	}
+
+	public float getPagosCordobas() {
+		return pagosCordobas;
+	}
+
+	public void setPagosCordobas(float pagosCordobas) {
+		this.pagosCordobas = pagosCordobas;
+	}
+
+	public float getCreditoCordobas() {
+		return creditoCordobas;
+	}
+
+	public void setCreditoCordobas(float creditoCordobas) {
+		this.creditoCordobas = creditoCordobas;
+	}
+
+	public float getSaldoCordobas() {
+		return saldoCordobas;
+	}
+
+	public void setSaldoCordobas(float saldoCordobas) {
+		this.saldoCordobas = saldoCordobas;
+	}
+
+	public float getSaldoDolar() {
+		return saldoDolar;
+	}
+
+	public void setSaldoDolar(float saldoDolar) {
+		this.saldoDolar = saldoDolar;
+	}
 
     //Funcion para guardar los creditos
     public void GuardarCredito(int cliente, Date fecha, String estado, float limite) {
@@ -91,13 +154,36 @@ public class Creditos extends Conexiondb {
         }
     }
 
+    public void saldoYpagos(int id){
+	this.cn = Conexion();
+	this.consulta = "CALL saldos(?)";
+	    try {
+		    this.pst = this.cn.prepareStatement(this.consulta);
+		    this.pst.setInt(1,id);
+		    ResultSet rs = this.pst.executeQuery();
+		    while (rs.next()) {			    
+			   this.creditoDolar = rs.getFloat("creditoDolar");
+			   this.creditoCordobas = rs.getFloat("creditoCordobas");
+			   this.pagosDolar = rs.getFloat("pagosDolar");
+			   this.pagosCordobas = rs.getFloat("pagosCordobas");
+		    }
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }finally{
+		try {
+			this.cn.close();
+		} catch (SQLException ex) {
+			Logger.getLogger(Creditos.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	    }
+    }
+
     //funcion de consulta de datos de creditos y retornar una tabla con los creditos para mostrarla en interfaz
     public DefaultTableModel Mostrar(String buscar) {
         cn = Conexion();
         this.consulta = "SELECT c.id,SUM(f.totalFactura) AS totalCredito, c.limite ,cl.id as idCliente,nombres,apellidos, c.estado FROM creditos AS c INNER JOIN clientes AS cl ON(c.cliente = cl.id) INNER JOIN facturas AS f ON(f.credito = c.id) WHERE CONCAT(c.id, cl.nombres, cl.apellidos) LIKE '%" + buscar + "%' AND c.estado = 'Pendiente' GROUP BY cl.id";
-        String[] titulos = {"N° Crédito", "Saldo", "Límite", "Id Cliente", "Nombres", "Apellidos", "Estado"};
-        float saldo = 0, monto = 0;
-        this.resgistros = new String[7];
+        String[] titulos = {"N° Crédito", "Saldo C$", "Saldo $", "Límite", "Id Cliente", "Nombres", "Apellidos", "Estado"};
+        this.resgistros = new String[8];
         this.modelo = new DefaultTableModel(null, titulos) {
             public boolean isCellEditable(int row, int col) {
                 return false;
@@ -109,16 +195,19 @@ public class Creditos extends Conexiondb {
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 //en la variable monto obtengo el total de pagos de el cliente
-                monto = this.pagos.PagosCliente(rs.getString("idCliente"));
+//                monto = this.pagos.PagosCliente(rs.getString("idCliente"));
                 //en la variable saldo obtengo lo que queda de la resta de lo que debe el cliente menos total de pagos que ha hecho
-                saldo = Float.parseFloat(rs.getString("totalCredito")) - monto;
+		this.saldoYpagos(rs.getInt("id"));
+                this.saldoCordobas = this.creditoCordobas - this.pagosCordobas;
+		this.saldoDolar = this.creditoDolar - this.pagosDolar;
                 this.resgistros[0] = rs.getString("id");
-                this.resgistros[1] = String.valueOf(formato.format(saldo));
-                this.resgistros[2] = rs.getString("limite");
-                this.resgistros[3] = rs.getString("idCliente");
-                this.resgistros[4] = rs.getString("nombres");
-                this.resgistros[5] = rs.getString("apellidos");
-                this.resgistros[6] = rs.getString("estado");
+                this.resgistros[1] = formato.format(this.saldoCordobas);
+		this.resgistros[2] = formato.format(this.saldoDolar);
+                this.resgistros[3] = rs.getString("limite");
+                this.resgistros[4] = rs.getString("idCliente");
+                this.resgistros[5] = rs.getString("nombres");
+                this.resgistros[6] = rs.getString("apellidos");
+                this.resgistros[7] = rs.getString("estado");
                 this.modelo.addRow(resgistros);
             }
             cn.close();
@@ -273,8 +362,8 @@ public class Creditos extends Conexiondb {
             }
         };
         this.consulta = "SELECT f.fecha, p.nombre, df.cantidadProducto, precioProducto, totalVenta AS totalImporte FROM facturas AS f "
-                + "INNER JOIN creditos AS c ON(f.credito=c.id) INNER JOIN detalleFactura AS df ON(f.id = df.factura) INNER JOIN productos AS p ON(df.producto=p.id)"
-                + " WHERE c.id = ? AND p.monedaVenta = 'Cordobas' AND df.cantidadProducto > 0 ORDER BY f.id DESC";
+                + "INNER JOIN creditos AS c ON(f.credito=c.id) INNER JOIN detalleFactura AS df ON(f.id = df.factura) INNER JOIN productos AS p"
+		+ " ON(df.producto=p.id) WHERE c.id = ? AND p.monedaVenta = 'Cordobas' AND df.cantidadProducto > 0 ORDER BY f.id DESC";
         try {
             this.pst = this.cn.prepareStatement(this.consulta);
             pst.setInt(1, id);

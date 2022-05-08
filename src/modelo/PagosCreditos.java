@@ -7,6 +7,8 @@ package modelo;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
@@ -19,10 +21,16 @@ public class PagosCreditos extends Conexiondb {
     DefaultTableModel modelo;
     Connection cn;
     PreparedStatement pst;
+    Statement st;
     String consulta;
     String[] resgistros;
-    DefaultComboBoxModel combo;
+    public DefaultComboBoxModel combo;
     int banderin;
+
+    private int credito, formaPago;
+    private float monto,utilidadPago;
+    private String moneda,anotacion;
+    private Date fecha;
 
     public PagosCreditos() {
         this.cn = null;
@@ -30,9 +38,66 @@ public class PagosCreditos extends Conexiondb {
         this.pst = null;
         this.banderin = 0;
     }
+
+	public int getCredito() {
+		return credito;
+	}
+
+	public void setCredito(int credito) {
+		this.credito = credito;
+	}
+
+	public int getFormaPago() {
+		return formaPago;
+	}
+
+	public void setFormaPago(int formaPago) {
+		this.formaPago = formaPago;
+	}
+
+	public float getMonto() {
+		return monto;
+	}
+
+	public void setMonto(float monto) {
+		this.monto = monto;
+	}
+
+	public float getUtilidadPago() {
+		return utilidadPago;
+	}
+
+	public void setUtilidadPago(float utilidadPago) {
+		this.utilidadPago = utilidadPago;
+	}
+
+	public String getMoneda() {
+		return moneda;
+	}
+
+	public void setMoneda(String moneda) {
+		this.moneda = moneda;
+	}
+
+	public String getAnotacion() {
+		return anotacion;
+	}
+
+	public void setAnotacion(String anotacion) {
+		this.anotacion = anotacion;
+	}
+
+	public Date getFecha() {
+		return fecha;
+	}
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+    
     //metodo para Guardar pagos
-    public void Guardar(int credito, float monto, Date fecha, int formaPago, String anotacion, float utilidadPago) {
-        this.consulta = "INSERT INTO pagoscreditos(credito,monto,fecha,formaPago,anotacion,utilidad) VALUES(?,?,?,?,?,?)";
+    public void Guardar(int credito, float monto, Date fecha, int formaPago, String anotacion, float utilidadPago, String moneda) {
+        this.consulta = "INSERT INTO pagoscreditos(credito,monto,fecha,formaPago,anotacion,utilidad,moneda) VALUES(?,?,?,?,?,?,?)";
         cn = Conexion();
         try {
             pst = this.cn.prepareStatement(this.consulta);
@@ -42,15 +107,49 @@ public class PagosCreditos extends Conexiondb {
             pst.setInt(4, formaPago);
 	    pst.setString(5, anotacion);
 	    pst.setFloat(6, utilidadPago);
+	    pst.setString(7, moneda);
             this.banderin = pst.executeUpdate();
             if (this.banderin > 0) {
                 JOptionPane.showMessageDialog(null, "Pago guardado exitosamete", "Informacion", JOptionPane.INFORMATION_MESSAGE);
             }
-            cn.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e);
-        }
+        }finally{
+		try {
+			cn.close();
+		} catch (SQLException ex) {
+			Logger.getLogger(PagosCreditos.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
     }
+
+	public void editar(int id){
+		this.cn = Conexion();
+		this.consulta = "SELECT * FROM creditos WHERE id = ?";
+		try {
+			this.pst = this.cn.prepareStatement(this.consulta);
+			this.pst.setInt(1,id);
+			ResultSet rs = this.pst.executeQuery();
+			while(rs.next()){
+				this.credito = rs.getInt("credito");
+				this.monto = rs.getFloat("monto");
+				this.anotacion = rs.getString("anotacion");
+				this.fecha = rs.getDate("fecha");
+				this.formaPago = rs.getInt("formaPago");
+				this.moneda = rs.getString("moneda");
+				this.utilidadPago = rs.getFloat("utilidad");		
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				this.cn.close();
+			} catch (SQLException ex) {
+				Logger.getLogger(PagosCreditos.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
+    
     //metodo para eliminar pago
     public void Eliminar(int id) {
         this.consulta = "DELETE FROM pagoscreditos WHERE id = ?";
@@ -92,16 +191,17 @@ public class PagosCreditos extends Conexiondb {
     //metodo para mostrar todos los pagos
     public DefaultTableModel Mostrar(String buscar) {
         cn = Conexion();
-        this.consulta = "SELECT pagoscreditos.id AS idPago, monto as montoPago, credito, pagoscreditos.fecha, clientes.nombres,apellidos,"
+        this.consulta = "SELECT pagoscreditos.id AS idPago, monto as montoPago, moneda, credito, pagoscreditos.fecha, clientes.nombres,apellidos,"
 		+ " formapago.tipoVenta, pagoscreditos.anotacion FROM pagoscreditos LEFT JOIN creditos ON(pagoscreditos.credito = creditos.id)"
 		+ " LEFT JOIN formapago"
 		+ " ON(formapago.id=pagoscreditos.formaPago) LEFT JOIN clientes ON(creditos.cliente = clientes.id) WHERE"
 		+ " CONCAT(pagoscreditos.id, pagoscreditos.credito, pagoscreditos.fecha, clientes.nombres, clientes.apellidos)"
 		+ " LIKE '%" + buscar + "%'";
-        this.resgistros = new String[8];
+        this.resgistros = new String[9];
         String[] titulos = {
 		"Id Pago",
 		"Monto de Pago",
+		"Moneda",
 		"Al Crédito",
 		"Fecha De Pago",
 		"Nombres Cliente",
@@ -120,12 +220,13 @@ public class PagosCreditos extends Conexiondb {
             while (rs.next()) {
                 this.resgistros[0] = rs.getString("idPago");
                 this.resgistros[1] = rs.getString("montoPago");
-                this.resgistros[2] = rs.getString("credito");
-                this.resgistros[3] = rs.getString("fecha");
-                this.resgistros[4] = rs.getString("nombres");
-                this.resgistros[5] = rs.getString("apellidos");
-                this.resgistros[6] = rs.getString("tipoVenta");
-		this.resgistros[7] = rs.getString("anotacion");
+		this.resgistros[2] = rs.getString("moneda");
+                this.resgistros[3] = rs.getString("credito");
+                this.resgistros[4] = rs.getString("fecha");
+                this.resgistros[5] = rs.getString("nombres");
+                this.resgistros[6] = rs.getString("apellidos");
+                this.resgistros[7] = rs.getString("tipoVenta");
+		this.resgistros[8] = rs.getString("anotacion");
                 this.modelo.addRow(resgistros);
             }
             cn.close();
@@ -283,5 +384,26 @@ public class PagosCreditos extends Conexiondb {
             JOptionPane.showMessageDialog(null, e + "en la funcion obtenerUltimoPago en el modelo Creditos.. ");
         }
         return id + 1;
+    }
+
+    public void getFormasPago(){
+	    this.cn = Conexion();
+	    this.consulta = "SELECT * FROM formaPago";
+	    this.combo = new DefaultComboBoxModel();
+	    try {
+		   this.st = this.cn.createStatement();
+		   ResultSet rs = this.st.executeQuery(this.consulta);
+		    while (rs.next()) {			    
+			   this.combo.addElement(new CmbFormaPago(rs.getInt("id"), rs.getString("tipoVenta")));
+		    }
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }finally{
+		    try {
+			    this.cn.close();
+		    } catch (SQLException ex) {
+			    Logger.getLogger(PagosCreditos.class.getName()).log(Level.SEVERE, null, ex);
+		    }
+	    }
     }
 }

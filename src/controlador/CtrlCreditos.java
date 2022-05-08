@@ -68,7 +68,6 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
         this.menu.tblCreditos.addMouseListener(this);
         this.menu.btnYes.addActionListener(this);
         this.menu.btnCancel.addActionListener(this);
-        this.menu.btnMonedasRecibidasPagoCreditos.addActionListener(this);
         iniciar();
     }
 
@@ -109,18 +108,6 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
         // 
         if (e.getSource() == menu.GenerarPago) {
             generarPago();
-        }
-        if (e.getSource() == menu.btnMonedasRecibidasPagoCreditos) {
-            int numeroFacturaPago = Integer.parseInt(this.menu.lblNumeroPago.getText());
-            this.menu.jdMonedasRecibidas.setSize(325, 265);
-            this.menu.jdMonedasRecibidas.setLocationRelativeTo(null);
-            this.menu.jdMonedasRecibidas.setVisible(true);
-            this.menu.chexIngresoMonedasPago.setSelected(true);
-            this.menu.chexIngresoMonedasPago.setEnabled(false);
-            this.menu.chexIngresoMonedasFactura.setSelected(false);
-            this.menu.chexIngresoMonedasFactura.setEnabled(false);
-            this.menu.jsFacturaPago.setValue(numeroFacturaPago);
-
         }
     }
 
@@ -287,7 +274,7 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
             credito = Float.parseFloat(this.modelo.getValueAt(i, 1).toString());
             //id de cliente
             idCliente = (String) (this.modelo.getValueAt(i, 3).toString());
-            //condicion para saber si el saldo esta en 0.0 o menor de 0.0
+            //condicion para saber si el saldoCordobas esta en 0.0 o menor de 0.0
             if (credito == 0.0 || credito < 0) {
                 ctrlReport.setEstadoC(true);
                 ctrlReport.idCliente = idCliente;
@@ -320,18 +307,22 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
 
     public void MostrarDatosCrediticio(String id) {
         if (!id.equals("")) {
-            float credito, abonos, saldo;
+            float saldoCordobas,saldoDolar;
             int idC = Integer.parseInt(id);
-            credito = creditos.creditoGlobalCliente(idC);
-            abonos = creditos.AbonoGlobalCliente(idC);
+	    this.creditos.saldoYpagos(idC);
+//            credito = creditos.creditoGlobalCliente(idC);
+//            abonos = creditos.AbonoGlobalCliente(idC);
             menu.jpInformacionCrediticia.setBorder(javax.swing.BorderFactory.createTitledBorder(creditos.NombreCliente(id)));
             menu.tblArticulosCredito.setModel(creditos.MostrarProductosCreditoDolar(idC));
             menu.tblArticulosCreditoCordobas.setModel(creditos.MostrarProductosCreditoCordobas(idC));
             menu.tblAbonosCreditos.setModel(creditos.MostrarAbonosCliente(idC));
-            menu.lblTodalCreditoPorCliente.setText("" + credito);
-            menu.lblTotalAbonosPorCliente.setText("" + abonos);
-            saldo = credito - abonos;
-            menu.lblSaldoCliente.setText("" + saldo);
+            menu.lblTodalCreditoPorCliente.setText("" + this.creditos.getCreditoCordobas());
+            menu.lblTotalAbonosPorCliente.setText("" + this.creditos.getPagosCordobas());
+	    this.menu.lblTodalCreditoPorClienteDolar.setText(""+this.creditos.getCreditoDolar());
+	    this.menu.lblTotalAbonosPorClienteDolar.setText(""+this.creditos.getPagosDolar());
+            saldoCordobas = this.creditos.getCreditoCordobas() - this.creditos.getPagosCordobas();
+	    saldoDolar = this.creditos.getCreditoDolar() - this.creditos.getPagosDolar();
+            menu.lblSaldoCliente.setText("" + saldoCordobas);
         }
     }
 
@@ -500,7 +491,7 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
                 menu.txtCreditoPago.setText(credito);
                 menu.txtMontoPago.setText("0.0");
                 menu.txtMontoPago.requestFocus();
-                menu.pagosAcreditos.setSize(860, 400);
+                menu.pagosAcreditos.setSize(860, 500);
                 menu.pagosAcreditos.setVisible(true);
                 menu.pagosAcreditos.setLocationRelativeTo(null);
 

@@ -54,33 +54,30 @@ public class Reportes extends Conexiondb {
 		return this.dolaresComprados;
 	}
 
-	public float getVentasDolarizadas(){
+	public float getVentasDolarizadas() {
 		return this.ventasDolarizadas;
 	}
 
 //METODO PARA DETECTAR CARACTERES ESPECIALES DENTRO DEL CODIGO DE BARRAS
-    public float CleanChars(String str){
-        char[] charSearch = {','};
-        for(int i=0; i<str.length(); i++) 
-        {
-            char chr = str.charAt(i);
-            for(int j=0; j<charSearch.length; j++)
-            {
-                if(charSearch[j] == chr)
-                {
-		   str = str.replace(",", "");
-                }
-            }  
-        }
-	return Float.parseFloat(str);
-    }	
+	public float CleanChars(String str) {
+		char[] charSearch = {','};
+		for (int i = 0; i < str.length(); i++) {
+			char chr = str.charAt(i);
+			for (int j = 0; j < charSearch.length; j++) {
+				if (charSearch[j] == chr) {
+					str = str.replace(",", "");
+				}
+			}
+		}
+		return Float.parseFloat(str);
+	}
 
 	//mostrar facturas realizadas por dia 
 	public DefaultTableModel ReporteDiario(Date Fecha) {
 		cn = Conexion();
 		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id as idCredito, cajas.caja, facturas.anotaciones,totalDolarisado from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? ORDER BY facturas.id DESC";
 		String[] Resultados = new String[10];
-		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja", "N. fact. M","Dolarizada"};
+		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja", "N. fact. M", "Dolarizada"};
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -100,9 +97,9 @@ public class Reportes extends Conexiondb {
 				Resultados[6] = rs.getString("idCredito");
 				Resultados[7] = rs.getString("caja");
 				Resultados[8] = rs.getString("anotaciones");
-				if(rs.getString("totalDolarisado") != null && rs.getInt("totalDolarisado") == 1){
+				if (rs.getString("totalDolarisado") != null && rs.getInt("totalDolarisado") == 1) {
 					Resultados[9] = "si";
-				}else{
+				} else {
 					Resultados[9] = "no";
 				}
 				modelo.addRow(Resultados);
@@ -187,7 +184,31 @@ public class Reportes extends Conexiondb {
 	public float TotalCreditosDiario(Date fecha) {
 		cn = Conexion();
 		float totalCreditos = 0;
-		this.consulta = "SELECT SUM(totalFactura) AS totalCredito FROM facturas INNER JOIN creditos ON(facturas.credito = creditos.id) INNER JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? AND cajas.caja='CAJA1'";
+		this.consulta = "SELECT SUM(totalFactura) AS totalCredito FROM facturas INNER JOIN creditos ON(facturas.credito = creditos.id)"
+			+ " INNER JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? AND cajas.caja='CAJA1' AND"
+			+ " (facturas.totalDolarisado = 0 OR facturas.totalDolarisado IS NULL)";
+		try {
+			pst = this.cn.prepareStatement(this.consulta);
+			pst.setDate(1, fecha);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				totalCreditos = rs.getFloat("totalCredito");
+			}
+			if (totalCreditos == 0) {
+				totalCreditos = 0;
+			}
+			cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + " credito diario");
+		}
+		return totalCreditos;
+	}
+
+	public float totalCreditoDolar(Date fecha) {
+		cn = Conexion();
+		float totalCreditos = 0;
+		this.consulta = "SELECT SUM(totalFactura) AS totalCredito FROM facturas INNER JOIN creditos ON(facturas.credito = creditos.id)"
+			+ " INNER JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? AND cajas.caja='CAJA1' AND facturas.totalDolarisado = 1";
 		try {
 			pst = this.cn.prepareStatement(this.consulta);
 			pst.setDate(1, fecha);
@@ -402,7 +423,8 @@ public class Reportes extends Conexiondb {
 	public float totalPagosEfectivoDiario(Date fecha1) {
 		cn = Conexion();
 		float pagos = 0;
-		this.consulta = "SELECT SUM(monto) AS TotalPagos FROM pagoscreditos INNER JOIN formapago ON(pagoscreditos.formaPago = formapago.id) WHERE formapago.tipoVenta = 'Efectivo' AND pagoscreditos.fecha = ?";
+		this.consulta = "SELECT SUM(monto) AS TotalPagos FROM pagoscreditos AS p INNER JOIN formapago AS fp ON(p.formaPago = fp.id)"
+			+ " WHERE fp.tipoVenta = 'Efectivo' AND p.fecha = ? AND p.moneda = 'Córdobas'";
 		try {
 			pst = cn.prepareStatement(consulta);
 			pst.setDate(1, fecha1);
@@ -410,12 +432,41 @@ public class Reportes extends Conexiondb {
 			while (rs.next()) {
 				pagos = rs.getFloat("totalPagos");
 			}
-			if (pagos == 0) {
-				pagos = 0;
-			}
-			cn.close();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e + " totalpagoefectivodiario");
+		} finally {
+			try {
+				cn.close();
+			} catch (SQLException ex) {
+				Logger.getLogger(Reportes.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		return pagos;
+	}
+
+	//metodo para Obtener el total de Ingresos por pagos en efectivo por dia 
+	public float totalPagosEfectivoDolarDiario(Date fecha1) {
+		cn = Conexion();
+		float pagos = 0;
+		this.consulta = "SELECT SUM(monto) AS TotalPagos FROM pagoscreditos AS p INNER JOIN formapago AS fp ON(p.formaPago = fp.id)"
+			+ " WHERE fp.tipoVenta = 'Efectivo' AND p.fecha = ? AND p.moneda = 'Dolar'";
+		try {
+			pst = cn.prepareStatement(consulta);
+			pst.setDate(1, fecha1);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				pagos = rs.getFloat("totalPagos");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e + " totalpagoefectivodiario");
+		} finally {
+			try {
+				cn.close();
+			} catch (SQLException ex) {
+				Logger.getLogger(Reportes.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		}
 		return pagos;
 	}
@@ -702,7 +753,6 @@ public class Reportes extends Conexiondb {
 		return total;
 	}
 
-	
 	public float ingresoEfectivoDolarCajaDiario(Date fecha1) {
 		float total = 0;
 		cn = Conexion();
@@ -765,7 +815,27 @@ public class Reportes extends Conexiondb {
 	public float IngresosTotalesDiario(Date fecha1) {
 		float total = 0;
 		cn = Conexion();
-		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas INNER JOIN cajas ON(facturas.caja=cajas.id) WHERE fecha = ? AND cajas.caja = 'CAJA1'";
+		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas INNER JOIN cajas ON(facturas.caja=cajas.id)"
+			+ " WHERE fecha = ? AND cajas.caja = 'CAJA1' AND (totalDolarisado = 0 OR totalDolarisado is null)";
+		try {
+			PreparedStatement pst = this.cn.prepareStatement(this.consulta);
+			pst.setDate(1, fecha1);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				total = rs.getFloat("total");
+			}
+			this.cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + "funcion IngresosTotales en modelo");
+		}
+		return total;
+	}
+
+	public float ingresosTotalesDolarEfectivoDiario(Date fecha1) {
+		float total = 0;
+		cn = Conexion();
+		this.consulta = "SELECT SUM(totalFactura) AS total FROM facturas INNER JOIN cajas ON(facturas.caja=cajas.id)"
+			+ " WHERE fecha = ? AND cajas.caja = 'CAJA1' AND totalDolarisado = 1";
 		try {
 			PreparedStatement pst = this.cn.prepareStatement(this.consulta);
 			pst.setDate(1, fecha1);
@@ -1059,7 +1129,7 @@ public class Reportes extends Conexiondb {
 			totalUtilidades = CleanChars(totalString);
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, e + "en la funcion precioVenta en el modelo de reporte");
-		}finally{
+		} finally {
 			try {
 				this.cn.close();
 			} catch (SQLException ex) {
@@ -1114,16 +1184,15 @@ public class Reportes extends Conexiondb {
 		return total;
 	}
 
-	public float utilidadXpagos(Date fecha){
+	public float utilidadXpagos(Date fecha) {
 		float utilidad = 0;
 		this.cn = Conexion();
 		this.consulta = "SELECT SUM(utilidad) AS utilidad FROM pagoscreditos as pc WHERE pc.fecha = ?";
 		try {
 			this.pst = this.cn.prepareStatement(this.consulta);
-			this.pst.setDate(1,fecha);
+			this.pst.setDate(1, fecha);
 			ResultSet rs = this.pst.executeQuery();
-			while(rs.next())
-			{
+			while (rs.next()) {
 				utilidad = rs.getFloat("utilidad");
 			}
 			this.cn.close();
@@ -1231,23 +1300,23 @@ public class Reportes extends Conexiondb {
 		return this.modelo;
 	}
 
-	public DefaultTableModel mostrarProductosVendidosDiarios(){
+	public DefaultTableModel mostrarProductosVendidosDiarios() {
 		this.cn = Conexion();
 		this.consulta = "SELECT p.nombre,df.cantidadProducto,df.precioProducto,df.monedaVenta,df.precioCompra,df.monedaCompra FROM"
 			+ " detalleFactura AS df INNER JOIN productos AS p ON(df.producto=p.id) INNER JOIN facturas AS f ON(df.factura=f.id)"
 			+ " WHERE f.fecha = DATE(NOW())";
-		String[] titulos = {"DESCRIPCION","CANT.","PRECIO","MON.","COSTO","MON."};	
+		String[] titulos = {"DESCRIPCION", "CANT.", "PRECIO", "MON.", "COSTO", "MON."};
 		String[] datos = new String[6];
-		this.modelo = new DefaultTableModel(null,titulos){
+		this.modelo = new DefaultTableModel(null, titulos) {
 			@Override
-			public boolean isCellEditable(int row,int col){
+			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
 		};
 		try {
 			Statement st = this.cn.createStatement();
 			ResultSet rs = st.executeQuery(this.consulta);
-			while(rs.next()){
+			while (rs.next()) {
 				datos[0] = rs.getString("nombre");
 				datos[1] = rs.getString("cantidadProducto");
 				datos[2] = rs.getString("precioProducto");
@@ -1258,7 +1327,7 @@ public class Reportes extends Conexiondb {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			try {
 				this.cn.close();
 			} catch (SQLException ex) {
@@ -1268,7 +1337,7 @@ public class Reportes extends Conexiondb {
 		return this.modelo;
 	}
 
-	public float utilidades(Date fecha1, Date fecha2){
+	public float utilidades(Date fecha1, Date fecha2) {
 		float utilidad = 0;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String fechaString1 = sdf.format(fecha1);
@@ -1277,17 +1346,46 @@ public class Reportes extends Conexiondb {
 		this.consulta = "CALL utilidades(?,?)";
 		try {
 			this.pst = this.cn.prepareStatement(this.consulta);
-			this.pst.setString(1,fechaString1);
-			this.pst.setString(2,fechaString2);
+			this.pst.setString(1, fechaString1);
+			this.pst.setString(2, fechaString2);
 			ResultSet rs = this.pst.executeQuery();
-			while(rs.next()){
-				utilidad = (rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar")) - 
-					(rs.getFloat("costoCordobas") + rs.getFloat("costoDolar"));	
+			while (rs.next()) {
+				utilidad = (rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar"))
+					- (rs.getFloat("costoCordobas") + rs.getFloat("costoDolar"));
 				this.ventasDolarizadas = rs.getFloat("dolarizado");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
+			try {
+				this.cn.close();
+			} catch (SQLException ex) {
+				Logger.getLogger(Reportes.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		return utilidad;
+	}
+
+	public float utilidadesDeCreditos(Date fecha1, Date fecha2) {
+		float utilidad = 0;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String fechaString1 = sdf.format(fecha1);
+		String fechaString2 = sdf.format(fecha2);
+		this.cn = Conexion();
+		this.consulta = "CALL utilidadesCreditos(?,?)";
+		try {
+			this.pst = this.cn.prepareStatement(this.consulta);
+			this.pst.setString(1, fechaString1);
+			this.pst.setString(2, fechaString2);
+			ResultSet rs = this.pst.executeQuery();
+			while (rs.next()) {
+				utilidad = (rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar"))
+					- (rs.getFloat("costoCordobas") + rs.getFloat("costoDolar"));
+				this.ventasDolarizadas = rs.getFloat("dolarizado");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
 			try {
 				this.cn.close();
 			} catch (SQLException ex) {

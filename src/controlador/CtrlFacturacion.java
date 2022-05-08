@@ -1213,9 +1213,11 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 						//obtengo desde el modelo facturta la moneda de venta de el producto na aplicarle el aumento
 						this.factura.monedaVentaProducto(id);
 						//validar que moneda de venta tiene el producto a aplicarse el aumento
-						if (this.factura.getMonedaVenta().equals("Dolar")) {
+						if (this.factura.getMonedaVenta().equals("Dolar") && !this.dolarisado) {
 							importeUpdate = (precioUpdate * cantidad) * precioDolar;
-						} else if (this.factura.getMonedaVenta().equals("Córdobas")) {
+						} else if (this.factura.getMonedaVenta().equals("Dolar") && this.dolarisado) {
+							importeUpdate = precioUpdate * cantidad;
+						}else if (this.factura.getMonedaVenta().equals("Córdobas")) {
 							importeUpdate = precioUpdate * cantidad;
 						}
 						//actualizar el importe y el precio

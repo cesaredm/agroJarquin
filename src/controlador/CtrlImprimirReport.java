@@ -85,17 +85,17 @@ public class CtrlImprimirReport extends PrintReportes implements ActionListener 
         Date fechaInicio = menu.jcFechaReporteDario.getDate();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-YYYY");
         String fechaR = sdf.format(fechaInicio),
-		base = menu.lblBase.getText(),
-		ventasE = menu.lblVentasEfectivoDiario.getText(),
-		ventasT = menu.lblVentasTarjetaDiario.getText(),
-                pagosE = menu.lblIngresosPagosEfectivoDiario.getText(),
-		pagosT = menu.lblIngresosPagosTarjetaDiario.getText(),
-                creditos = menu.lblCreditosDiarios.getText(),
-		egresos = menu.lblEgresosDiarios.getText(),
-		existCaja = menu.lblTotalExistenciaCajaDiario.getText(),
-                bancos = menu.lblIngresosBancosDiario.getText(),
-		totalV = menu.lbltotalVendidoDiario.getText(),
-                ingresosE = menu.lblIngresoEfectivo.getText();
+		base = menu.tblReportes.getValueAt(0, 2).toString(),
+		ventasE =menu.tblReportes.getValueAt(1, 2).toString() ,
+		ventasT = menu.tblReportes.getValueAt(7, 2).toString(),
+                pagosE = menu.tblReportes.getValueAt(3, 2).toString(),
+		pagosT = menu.tblReportes.getValueAt(9, 2).toString(),
+                creditos = menu.tblReportes.getValueAt(5, 2).toString(),
+		egresos = menu.tblReportes.getValueAt(8, 2).toString(),
+		existCaja = menu.tblReportes.getValueAt(11, 2).toString(),
+                bancos = menu.tblReportes.getValueAt(13, 2).toString(),
+		totalV = menu.tblReportes.getValueAt(15, 2).toString(),
+                ingresosE = menu.tblReportes.getValueAt(10, 2).toString();
                 
         llenarTicketDiario(nombreTienda, fechaR, base, ventasE, ventasT, pagosE, pagosT, ingresosE, creditos, egresos, existCaja, bancos, totalV);
         try {
