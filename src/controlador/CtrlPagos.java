@@ -98,8 +98,9 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 					pagos.Actualizar(this.id, c, montoPago, fechaPago, idFormaPago, anotaciones, utilidadPago);
 					MostrarPagos("");
 					ctrlC.MostrarCreditos("");
-					ctrlC.ActualizarEstadoCreditoApendiente();
-					ctrlC.ActualizarEstadoCreditoAabierto();
+					CtrlCreditos.cambiarEstado(this.pagos.getCredito());
+//					ctrlC.ActualizarEstadoCreditoApendiente();
+//					ctrlC.ActualizarEstadoCreditoAabierto();
 					LimpiarPago();
 					ctrlR.reportesDiarios(this.fecha);
 					ctrlR.MostrarReportesDario(this.fecha);
@@ -158,13 +159,14 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 	}
 
 	public void eliminar() {
-		int filaseleccionada = menu.tblPagos.getSelectedRow(), id = 0;
+		int filaseleccionada = menu.tblPagos.getSelectedRow(), id = 0, credito;
 		try {
 			if (filaseleccionada == -1) {
 
 			} else {
 				this.modelo = (DefaultTableModel) menu.tblPagos.getModel();
 				id = Integer.parseInt(this.modelo.getValueAt(filaseleccionada, 0).toString());
+				credito = Integer.parseInt(this.modelo.getValueAt(filaseleccionada, 3).toString());
 				this.pagos.Eliminar(id);
 				MostrarPagos("");
 				this.ctrlC.MostrarCreditos("");
@@ -172,8 +174,9 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 				ctrlR.MostrarReportesDario(this.fecha);
 				ctrlR.ReporteGlobal();
 				this.ctrlR.SumaTotalFiltroReporte(this.fecha, this.fecha);
-				ctrlC.ActualizarEstadoCreditoApendiente();
-				ctrlC.ActualizarEstadoCreditoAabierto();
+				CtrlCreditos.cambiarEstado(credito);
+//				ctrlC.ActualizarEstadoCreditoApendiente();
+//				ctrlC.ActualizarEstadoCreditoAabierto();
 			}
 		} catch (Exception err) {
 			JOptionPane.showMessageDialog(null, err + " en la funcion Borrar Pago", "Error", JOptionPane.ERROR_MESSAGE);
@@ -276,8 +279,9 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 					MostrarPagos("");
 					LimpiarPago();
 					ctrlC.MostrarCreditos("");
-					ctrlC.ActualizarEstadoCreditoApendiente();
-					ctrlC.ActualizarEstadoCreditoAabierto();
+//					ctrlC.ActualizarEstadoCreditoApendiente();
+//					ctrlC.ActualizarEstadoCreditoAabierto();
+					CtrlCreditos.cambiarEstado(c);
 					ctrlC.MostrarCreditos("");
 					ctrlR.reportesDiarios(this.fecha);
 					ctrlR.MostrarReportesDario(this.fecha);

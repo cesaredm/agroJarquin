@@ -60,17 +60,21 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 	InfoFactura info;
 	private boolean estadoC = true;
 	float totalVendidio,
-		exisCaja,
+		exisCajaCordobas,
+		exisCajaDolar,
 		ingresosVentaE,
 		ingresosVentaEfectivoDolar,
 		ingresosVentasT,
 		ingresosPagosE,
 		ingresosPagoT,
-		ingresosCordobasEfectivo,
-		ingresoDolarEfectivo,
+		totalIngresosCordobasEfectivo,
+		totalIngresoDolarEfectivo,
 		Ingresosbancos,
+		ingresosEfectivoCordobas,
+		ingresosEfectivoDolar,
 		creditos,
-		egresos,
+		egresosCordobas,
+		egresosDolar,
 		base,
 		dolaresComprados,
 		dolaresVendidos,
@@ -88,6 +92,7 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 		this.aperturas = new AperturasYcierres();
 		this.fecha = new Date();
 		this.info = new InfoFactura();
+		this.permisosView();
 		this.columnRender = new DefaultTableCellRenderer();
 		this.menu.btnReporteDiario.addActionListener(this);
 		this.menu.btnReporteDiario.setActionCommand("REPORTE-DIARIO");
@@ -329,18 +334,22 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 		pagosEfectivoDolar = reportes.totalPagosEfectivoDolarDiario(fechaInicio);
 		//ingresos por pagos cobrados con tarjeta
 		ingresosPagoT = reportes.totalPagosTarjetaDiario(fechaInicio);
+		ingresosEfectivoCordobas = reportes.ingresoDiarioEfectivoCordobas(fechaInicio);
+		ingresosEfectivoDolar = reportes.ingresoDiarioEfectivoDolar(fechaInicio);
 		//ingresos totales diarios en efectivo
-		ingresosCordobasEfectivo = reportes.ingresoEfectivoCajaDiario(fechaInicio)
+		totalIngresosCordobasEfectivo = reportes.ingresoEfectivoCajaDiario(fechaInicio)
 			+ reportes.totalPagosEfectivoDiario(fechaInicio)
-			+ reportes.ingresoDiarioEfectivo(fechaInicio);
-		this.ingresoDolarEfectivo = ingresosVentaEfectivoDolar + pagosEfectivoDolar;
+			+ ingresosEfectivoCordobas;
+		this.totalIngresoDolarEfectivo = ingresosVentaEfectivoDolar + pagosEfectivoDolar + ingresosEfectivoDolar;
 		//ingreso a bancos por ventas con tarjeta y pagos con tarjeta diarios
 		Ingresosbancos = reportes.IngresoAbancosDiario(fechaInicio) + reportes.totalPagosTarjetaDiario(fechaInicio);
+
 		//creditos realizados 
 		creditos = reportes.TotalCreditosDiario(fechaInicio);
 		this.creditosDolar = reportes.totalCreditoDolar(fechaInicio);
 		//egresos realizados
-		egresos = reportes.TotalGastosDiario(fechaInicio);
+		egresosCordobas = reportes.TotalGastosDiario(fechaInicio);
+		egresosDolar = reportes.totalGastosDiariosDolar(fechaInicio);
 		//total vendido
 		totalVendidio = reportes.IngresosTotalesDiario(fechaInicio);
 		//Margen de utilidad
@@ -349,7 +358,8 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 		utilidad = reportes.utilidades(fechaInicio, fechaInicio);
 		utilidadCreditos = reportes.utilidadesDeCreditos(fechaInicio, fechaInicio);
 		//existencia real en caja
-		exisCaja = (ingresosCordobasEfectivo + base) - egresos;
+		exisCajaCordobas = (totalIngresosCordobasEfectivo + base) - egresosCordobas;
+		exisCajaDolar = totalIngresoDolarEfectivo - egresosDolar;
 		//ejecutar funcion para obtener los dolares y cordobas recibidos
 		reportes.MonedasRecibidas(fechaInicio);
 		reportes.EgresoMonedas(fechaInicio);
@@ -363,22 +373,22 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 			{"Efectivo de apertura en caja", "C$", this.formato.format(base)},
 			{"Ingreso por ventas en efectivo en cord", "C$", this.formato.format(ingresosVentaE)},
 			{"Ingreso por abonos en efectivo en cord", "C$", this.formato.format(ingresosPagosE)},
-			{"Ingreso de efectivo", "C$", this.formato.format(reportes.ingresoDiarioEfectivo(fechaInicio))},
+			{"Ingreso de efectivo", "C$", this.formato.format(this.ingresosEfectivoCordobas)},
 			{"Creditos en cordobas", "C$", this.formato.format(creditos)},
 			{"Ingreso por ventas con tarjeta", "C$", this.formato.format(ingresosVentasT)},
-			{"Egresos en córdobas", "C$", this.formato.format(egresos)},
+			{"Egresos en córdobas", "C$", this.formato.format(egresosCordobas)},
 			{"Ingreso por ventas en efectivo en Dolar", "$", this.formato.format(ingresosVentaEfectivoDolar)},
 			{"Ingreso por abonos en efectivo en dolar", "$", this.formato.format(this.pagosEfectivoDolar)},
+			{"Ingreso de efectivo","$",this.formato.format(this.ingresosEfectivoDolar)},
 			{"Creditos en dolar", "$", this.formato.format(creditosDolar)},
-			{"Egresos en dolares", "$", "0.00"},
-			{"Ingreso por abonos con tarjeta", "C$", this.formato.format(ingresosPagoT)},
-		};
+			{"Egresos en dolares", "$", this.formato.format(this.egresosDolar)},
+			{"Ingreso por abonos con tarjeta", "C$", this.formato.format(ingresosPagoT)},};
 		try {
 			this.modelo = new DefaultTableModel(reportesTable, titulos);
 			this.menu.tblReportes.setModel(this.modelo);
 			this.alinearTextoTable();
-			this.menu.lblTotalExistenciaCajaDiario.setText(this.formato.format(exisCaja));
-			this.menu.lblTotalDolaresCaja.setText(this.formato.format(this.ingresoDolarEfectivo));
+			this.menu.lblTotalExistenciaCajaDiario.setText(this.formato.format(exisCajaCordobas));
+			this.menu.lblTotalDolaresCaja.setText(this.formato.format(this.exisCajaDolar));
 			this.menu.lbltotalVendidoDiario.setText(this.formato.format(totalVendidio));
 			this.menu.lblVentaNetaDolares.setText(this.formato.format(this.reportes.ingresosTotalesDolarEfectivoDiario(fechaInicio)));
 			this.menu.lblTotalUtilidadDiario.setText(this.formato.format(utilidad));
@@ -769,6 +779,24 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 		} else {
 			menu.lblExistApertura.setText("");
 			menu.txtEfectivoApertura.requestFocus();
+		}
+	}
+
+	public void permisosView(){
+		if(CtrlMenuOpciones.permiso == 2){
+			this.menu.jLabel65.setVisible(false);
+			this.menu.jLabel82.setVisible(false);
+			this.menu.jLabel110.setVisible(false);
+			this.menu.jLabel185.setVisible(false);
+			this.menu.jLabel217.setVisible(false);
+			this.menu.jLabel218.setVisible(false);
+			this.menu.lblTotalUtilidadDiariaEnCaja.setVisible(false);
+			this.menu.lblTotalUtilidadDiariaPorCreditos.setVisible(false);
+			this.menu.lblTotalUtilidadDiario.setVisible(false);
+			this.menu.jPanel23.setVisible(false);
+			this.menu.tblUtilidades.setVisible(false);
+			this.menu.pnlInversion.setVisible(false);
+			this.menu.tblListaProductosDiarios.setVisible(false);
 		}
 	}
 }

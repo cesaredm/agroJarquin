@@ -24,7 +24,7 @@ import vista.IMenu;
  * @author CESAR DIAZ MARADIAGA
  */
 public class CtrlMenuOpciones implements MouseListener, ActionListener, WindowListener {
-    int permiso;
+    static int permiso;
     int cont;
     private String usuario;
     Date fecha;
@@ -60,7 +60,7 @@ public class CtrlMenuOpciones implements MouseListener, ActionListener, WindowLi
     
     public CtrlMenuOpciones(IMenu menu,int permiso, String usuario) {
         this.usuario = usuario;
-        this.permiso = permiso;
+        CtrlMenuOpciones.permiso = permiso;
         this.cont = 0;
         this.fecha = new Date();
         this.menu = menu;

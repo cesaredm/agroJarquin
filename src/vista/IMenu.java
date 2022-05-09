@@ -271,6 +271,8 @@ public class IMenu extends javax.swing.JFrame {
                 jPanel12 = new javax.swing.JPanel();
                 lblSaldoCliente = new javax.swing.JLabel();
                 jLabel165 = new javax.swing.JLabel();
+                lblSaldoClienteDolar = new javax.swing.JLabel();
+                jLabel177 = new javax.swing.JLabel();
                 jLabel166 = new javax.swing.JLabel();
                 jLabel167 = new javax.swing.JLabel();
                 lblTodalCreditoPorCliente = new javax.swing.JLabel();
@@ -494,6 +496,8 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel76 = new javax.swing.JLabel();
                 jLabel194 = new javax.swing.JLabel();
                 txtNfacturaMembretada = new javax.swing.JTextField();
+                jcFechaVencimientoFactura = new com.toedter.calendar.JDateChooser();
+                jLabel113 = new javax.swing.JLabel();
                 btnGuardarFactura = new javax.swing.JButton();
                 btnNuevaFactura = new javax.swing.JButton();
                 btnActualizarFactura = new javax.swing.JButton();
@@ -770,6 +774,7 @@ public class IMenu extends javax.swing.JFrame {
                 cmbTipoTransaccion = new javax.swing.JComboBox<>();
                 cmbCajaTransaccion = new javax.swing.JComboBox<>();
                 jLabel89 = new javax.swing.JLabel();
+                cmbMonedaTransaccion = new javax.swing.JComboBox<>();
                 pnlInfoFactura = new javax.swing.JPanel();
                 jPanel24 = new javax.swing.JPanel();
                 jLabel38 = new javax.swing.JLabel();
@@ -1925,15 +1930,28 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel165.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 jLabel165.setText("C$");
 
+                lblSaldoClienteDolar.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+                lblSaldoClienteDolar.setForeground(new java.awt.Color(165, 95, 235));
+                lblSaldoClienteDolar.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+                lblSaldoClienteDolar.setText("0.00");
+
+                jLabel177.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel177.setText("$");
+
                 javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
                 jPanel12.setLayout(jPanel12Layout);
                 jPanel12Layout.setHorizontalGroup(
                         jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel12Layout.createSequentialGroup()
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(lblSaldoCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 789, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel165, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jLabel177, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblSaldoClienteDolar, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel165, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblSaldoCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
                 );
                 jPanel12Layout.setVerticalGroup(
                         jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1941,7 +1959,9 @@ public class IMenu extends javax.swing.JFrame {
                                 .addContainerGap()
                                 .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(lblSaldoCliente)
-                                        .addComponent(jLabel165))
+                                        .addComponent(jLabel165)
+                                        .addComponent(lblSaldoClienteDolar)
+                                        .addComponent(jLabel177))
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
 
@@ -2015,34 +2035,38 @@ public class IMenu extends javax.swing.JFrame {
                                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
                                                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                        .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                                                .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                .addComponent(jLabel178)
-                                                                                .addComponent(jScrollPane31, javax.swing.GroupLayout.PREFERRED_SIZE, 494, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpInformacionCrediticiaLayout.createSequentialGroup()
-                                                                                        .addComponent(jLabel166)
-                                                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                        .addComponent(lblTodalCreditoPorCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                                        .addComponent(jScrollPane14)
+                                                                        .addComponent(jLabel178)
+                                                                        .addComponent(jScrollPane31)
+                                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpInformacionCrediticiaLayout.createSequentialGroup()
+                                                                                .addComponent(jLabel166, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                .addGap(49, 49, 49)
+                                                                                .addComponent(lblTodalCreditoPorCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                                                         .addComponent(jLabel171)
-                                                                        .addComponent(lblTodalCreditoPorClienteDolar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpInformacionCrediticiaLayout.createSequentialGroup()
+                                                                                .addGap(161, 161, 161)
+                                                                                .addComponent(lblTodalCreditoPorClienteDolar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                                         .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
                                                                                 .addComponent(jLabel172)
                                                                                 .addGap(0, 0, Short.MAX_VALUE))
-                                                                        .addComponent(jScrollPane8, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                                                                        .addComponent(jScrollPane8)
                                                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpInformacionCrediticiaLayout.createSequentialGroup()
-                                                                                .addComponent(jLabel167)
-                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                                        .addComponent(lblTotalAbonosPorClienteDolar, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                        .addComponent(lblTotalAbonosPorCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                                                                        .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
+                                                                                                .addComponent(jLabel167, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                                                                                .addGap(188, 188, 188))
+                                                                                        .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
+                                                                                                .addComponent(jLabel176, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                                                                                .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                        .addComponent(lblTotalAbonosPorClienteDolar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                        .addComponent(lblTotalAbonosPorCliente, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                                                         .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                         .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
-                                                                .addComponent(jLabel170)
-                                                                .addGap(398, 398, 398)
-                                                                .addComponent(jLabel176)
-                                                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                                                .addComponent(jLabel170, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                .addGap(911, 911, 911)))))
                                 .addContainerGap())
                 );
                 jpInformacionCrediticiaLayout.setVerticalGroup(
@@ -2055,11 +2079,11 @@ public class IMenu extends javax.swing.JFrame {
                                 .addGap(5, 5, 5)
                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jpInformacionCrediticiaLayout.createSequentialGroup()
-                                                .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jScrollPane14, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jLabel178)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jScrollPane31, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(jScrollPane31, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE))
                                         .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jpInformacionCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2076,9 +2100,9 @@ public class IMenu extends javax.swing.JFrame {
                                         .addComponent(lblTotalAbonosPorClienteDolar))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(16, 16, 16)
                                 .addComponent(btnImprimirHistorialCrediticio)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addContainerGap())
                 );
 
                 javax.swing.GroupLayout jdInfoCrediticiaLayout = new javax.swing.GroupLayout(jdInfoCrediticia.getContentPane());
@@ -2094,8 +2118,8 @@ public class IMenu extends javax.swing.JFrame {
                         jdInfoCrediticiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jdInfoCrediticiaLayout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jpInformacionCrediticia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jpInformacionCrediticia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap())
                 );
 
                 VentanaAddProductoStock.setTitle("Agregar Producto a Stock");
@@ -3337,7 +3361,7 @@ public class IMenu extends javax.swing.JFrame {
                 jScrollPane10.setViewportView(tblFactura);
 
                 btnEliminarFilaFactura.setBackground(new java.awt.Color(242, 255, 252));
-                btnEliminarFilaFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnEliminarFilaFactura.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnEliminarFilaFactura.setForeground(new java.awt.Color(0, 102, 0));
                 btnEliminarFilaFactura.setText("Eliminar Art");
                 btnEliminarFilaFactura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -3345,7 +3369,7 @@ public class IMenu extends javax.swing.JFrame {
                 btnEliminarFilaFactura.setPreferredSize(new java.awt.Dimension(111, 23));
 
                 btnAgregarProductoFactura.setBackground(new java.awt.Color(242, 255, 252));
-                btnAgregarProductoFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnAgregarProductoFactura.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnAgregarProductoFactura.setForeground(new java.awt.Color(0, 102, 0));
                 btnAgregarProductoFactura.setText("[F10]Buscar");
                 btnAgregarProductoFactura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -3353,14 +3377,14 @@ public class IMenu extends javax.swing.JFrame {
 
                 jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(69, 76, 89)), "Datos Generales", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 16))); // NOI18N
 
-                jLabel32.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel32.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel32.setText("Cliente:");
 
-                txtNClienteFactura.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                txtNClienteFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 txtNClienteFactura.setHorizontalAlignment(javax.swing.JTextField.CENTER);
                 txtNClienteFactura.setEnabled(false);
 
-                txtAClienteFactura.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                txtAClienteFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 txtAClienteFactura.setHorizontalAlignment(javax.swing.JTextField.CENTER);
                 txtAClienteFactura.setEnabled(false);
                 txtAClienteFactura.addActionListener(new java.awt.event.ActionListener() {
@@ -3369,19 +3393,19 @@ public class IMenu extends javax.swing.JFrame {
                         }
                 });
 
-                jLabel35.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel35.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel35.setText("Fecha:");
 
-                jLabel36.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel36.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel36.setText("Forma de Pago");
 
-                cmbFormaPago.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                cmbFormaPago.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 cmbFormaPago.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-                jLabel37.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel37.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel37.setText("N° Factura:");
 
-                txtNumeroFactura.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                txtNumeroFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 txtNumeroFactura.setHorizontalAlignment(javax.swing.JTextField.CENTER);
                 txtNumeroFactura.setDisabledTextColor(new java.awt.Color(102, 102, 102));
                 txtNumeroFactura.setEnabled(false);
@@ -3389,30 +3413,42 @@ public class IMenu extends javax.swing.JFrame {
                 lblIdClienteFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 lblIdClienteFactura.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-                btnLimpiarCliente.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnLimpiarCliente.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 btnLimpiarCliente.setText("Cancelar");
                 btnLimpiarCliente.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-                jLabel69.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jcFechaFactura.setForeground(new java.awt.Color(51, 51, 51));
+                jcFechaFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+
+                jLabel69.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel69.setText("Crédito N°:");
 
-                txtCreditoFactura.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                txtCreditoFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 txtCreditoFactura.setHorizontalAlignment(javax.swing.JTextField.CENTER);
                 txtCreditoFactura.setDisabledTextColor(new java.awt.Color(102, 102, 102));
                 txtCreditoFactura.setEnabled(false);
 
                 btnCreditoFactura.setBackground(new java.awt.Color(0, 166, 192));
-                btnCreditoFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnCreditoFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 btnCreditoFactura.setForeground(new java.awt.Color(255, 255, 255));
                 btnCreditoFactura.setText("Crédito");
                 btnCreditoFactura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-                txtCompradorFactura.setFont(new java.awt.Font("Segoe UI", 0, 17)); // NOI18N
+                txtCompradorFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-                jLabel76.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jLabel76.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel76.setText("Comprador:");
 
+                jLabel194.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel194.setText("N° Fact. M");
+
+                txtNfacturaMembretada.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+
+                jcFechaVencimientoFactura.setForeground(new java.awt.Color(51, 51, 51));
+                jcFechaVencimientoFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+
+                jLabel113.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+                jLabel113.setText("Fecha de vencimiento:");
 
                 javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
                 jPanel10.setLayout(jPanel10Layout);
@@ -3422,54 +3458,71 @@ public class IMenu extends javax.swing.JFrame {
                                 .addContainerGap()
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtNumeroFactura, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
-                                                .addGap(15, 15, 15)
-                                                .addComponent(jLabel36)
-                                                .addGap(5, 5, 5)
-                                                .addComponent(cmbFormaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jLabel194)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtNfacturaMembretada, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
-                                                .addContainerGap())
-                                        .addGroup(jPanel10Layout.createSequentialGroup()
-                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addComponent(jcFechaFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(txtCreditoFactura))
                                                         .addGroup(jPanel10Layout.createSequentialGroup()
                                                                 .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                                 .addComponent(lblIdClienteFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                .addComponent(txtNClienteFactura)
-                                                                .addGap(18, 18, 18)
-                                                                .addComponent(txtAClienteFactura)
+                                                                .addComponent(txtNClienteFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(176, 176, 176)
+                                                                .addComponent(jLabel69)))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                        .addComponent(jcFechaVencimientoFactura, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                        .addComponent(txtAClienteFactura))
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                                 .addComponent(btnCreditoFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(btnLimpiarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                .addComponent(btnLimpiarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(32, 32, 32))
                                                         .addGroup(jPanel10Layout.createSequentialGroup()
-                                                                .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addComponent(jLabel113)
+                                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addComponent(txtNumeroFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(jcFechaFactura, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(jLabel69)
-                                                                .addGap(10, 10, 10)
-                                                                .addComponent(txtCreditoFactura)
-                                                                .addGap(10, 10, 10)
-                                                                .addComponent(jLabel76)
-                                                                .addGap(7, 7, 7)
-                                                                .addComponent(txtCompradorFactura)))
-                                                .addGap(32, 32, 32))))
+                                                                .addComponent(cmbFormaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(150, 150, 150)
+                                                                .addComponent(jLabel36)))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(txtNfacturaMembretada, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jLabel194))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addComponent(jLabel76, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(0, 0, Short.MAX_VALUE))
+                                                        .addComponent(txtCompradorFactura))
+                                                .addContainerGap())))
                 );
                 jPanel10Layout.setVerticalGroup(
                         jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel10Layout.createSequentialGroup()
                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel10Layout.createSequentialGroup()
+                                                .addComponent(txtNClienteFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel69, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                        .addGroup(jPanel10Layout.createSequentialGroup()
                                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(btnCreditoFactura, javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addComponent(btnLimpiarCliente)
+                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                                .addComponent(btnCreditoFactura)
+                                                                .addComponent(btnLimpiarCliente))
                                                         .addGroup(jPanel10Layout.createSequentialGroup()
                                                                 .addGap(5, 5, 5)
                                                                 .addComponent(jLabel32))
@@ -3477,43 +3530,45 @@ public class IMenu extends javax.swing.JFrame {
                                                                 .addGap(2, 2, 2)
                                                                 .addComponent(lblIdClienteFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                         .addComponent(txtAClienteFactura, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addGap(6, 6, 6))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                                                .addComponent(txtNClienteFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jLabel76, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jcFechaFactura, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel35)
-                                        .addComponent(txtCreditoFactura)
-                                        .addComponent(jLabel69, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(txtCompradorFactura))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
-                                                .addGap(0, 0, Short.MAX_VALUE)
-                                                .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(jPanel10Layout.createSequentialGroup()
                                                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(txtNumeroFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(jLabel37)
-                                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                                .addComponent(cmbFormaPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                .addComponent(jLabel194)
-                                                                .addComponent(txtNfacturaMembretada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                .addGap(0, 0, Short.MAX_VALUE)))
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                .addComponent(jLabel35)
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                                                        .addGroup(jPanel10Layout.createSequentialGroup()
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                .addComponent(jLabel113, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(txtCreditoFactura, javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jcFechaFactura, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jcFechaVencimientoFactura, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel37)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel194)
+                                                .addComponent(jLabel76, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addComponent(cmbFormaPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(txtNfacturaMembretada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(txtCompradorFactura))
+                                        .addComponent(txtNumeroFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap())
                 );
 
                 btnGuardarFactura.setBackground(new java.awt.Color(0, 166, 192));
-                btnGuardarFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnGuardarFactura.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnGuardarFactura.setForeground(new java.awt.Color(255, 255, 255));
                 btnGuardarFactura.setText("Cobrar Imprimir");
                 btnGuardarFactura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
                 btnGuardarFactura.setFocusPainted(false);
                 btnGuardarFactura.setPreferredSize(new java.awt.Dimension(99, 32));
 
-                btnNuevaFactura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnNuevaFactura.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnNuevaFactura.setText("Limpiar ");
                 btnNuevaFactura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
                 btnNuevaFactura.setFocusPainted(false);
@@ -3548,13 +3603,13 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel66.setToolTipText("");
                 jPanel5.add(jLabel66, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 10, 40, -1));
 
-                jLabel108.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+                jLabel108.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
                 jLabel108.setText("Cod. Barra:");
 
-                txtCodBarraFactura.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+                txtCodBarraFactura.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
                 btnAgregar.setBackground(new java.awt.Color(242, 255, 252));
-                btnAgregar.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnAgregar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnAgregar.setForeground(new java.awt.Color(0, 102, 0));
                 btnAgregar.setText("[Enter] Agregar");
                 btnAgregar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -3648,7 +3703,7 @@ public class IMenu extends javax.swing.JFrame {
                 jPanel29.add(cmbPrecioCompraVentaAdmin, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 20, 160, 30));
 
                 btnCobrarSinImprimir.setBackground(new java.awt.Color(0, 166, 192));
-                btnCobrarSinImprimir.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                btnCobrarSinImprimir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
                 btnCobrarSinImprimir.setForeground(new java.awt.Color(255, 255, 255));
                 btnCobrarSinImprimir.setText("Cobrar");
 
@@ -3673,9 +3728,9 @@ public class IMenu extends javax.swing.JFrame {
                                                         .addComponent(jScrollPane10))
                                                 .addContainerGap())
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlVentasLayout.createSequentialGroup()
-                                                .addComponent(jLabel108, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabel108)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtCodBarraFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(txtCodBarraFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(btnAgregar, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -3695,18 +3750,18 @@ public class IMenu extends javax.swing.JFrame {
                         .addGroup(pnlVentasLayout.createSequentialGroup()
                                 .addGroup(pnlVentasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(pnlVentasLayout.createSequentialGroup()
-                                                .addGap(17, 17, 17)
-                                                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(pnlVentasLayout.createSequentialGroup()
                                                 .addContainerGap()
                                                 .addComponent(jPanel27, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addGap(5, 5, 5)
-                                                .addComponent(btnActualizarFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(btnActualizarFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(pnlVentasLayout.createSequentialGroup()
+                                                .addGap(17, 17, 17)
+                                                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGroup(pnlVentasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(pnlVentasLayout.createSequentialGroup()
-                                                .addGap(11, 11, 11)
+                                                .addGap(18, 18, 18)
                                                 .addGroup(pnlVentasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addGroup(pnlVentasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                                 .addComponent(txtCodBarraFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -3717,12 +3772,12 @@ public class IMenu extends javax.swing.JFrame {
                                                         .addGroup(pnlVentasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                                 .addComponent(btnGuardarFactura, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addComponent(btnCobrarSinImprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                        .addGroup(pnlVentasLayout.createSequentialGroup()
-                                                .addGap(13, 13, 13)
-                                                .addComponent(jLabel108)))
-                                .addGap(10, 10, 10)
-                                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
-                                .addGap(11, 11, 11)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlVentasLayout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel108, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jPanel29, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(9, 9, 9))
                 );
@@ -5702,6 +5757,9 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel89.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 jLabel89.setText("Caja:");
 
+                cmbMonedaTransaccion.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                cmbMonedaTransaccion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Córdobas", "Dolar" }));
+
                 javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
                 jPanel17.setLayout(jPanel17Layout);
                 jPanel17Layout.setHorizontalGroup(
@@ -5727,8 +5785,11 @@ public class IMenu extends javax.swing.JFrame {
                                                                         .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                                                                 .addComponent(cmbCajaTransaccion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                                                 .addComponent(jScrollPane20, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
-                                                                                .addComponent(txtMontoGasto)
-                                                                                .addComponent(cmbTipoTransaccion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                                                .addComponent(cmbTipoTransaccion, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
+                                                                                        .addComponent(txtMontoGasto)
+                                                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                        .addComponent(cmbMonedaTransaccion, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                                         .addComponent(jcFechaGasto, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                                         .addGroup(jPanel17Layout.createSequentialGroup()
                                                                 .addGap(253, 253, 253)
@@ -5750,7 +5811,8 @@ public class IMenu extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(txtMontoGasto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel67))
+                                        .addComponent(jLabel67)
+                                        .addComponent(cmbMonedaTransaccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(cmbCajaTransaccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -6343,6 +6405,7 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JComboBox<String> cmbFormaPagoCredito;
         public javax.swing.JComboBox<String> cmbMonedaCompraProducto;
         public javax.swing.JComboBox<String> cmbMonedaPago;
+        public javax.swing.JComboBox<String> cmbMonedaTransaccion;
         public javax.swing.JComboBox<String> cmbMonedaVentaProducto;
         public javax.swing.JComboBox<String> cmbPermisoUsuario;
         public javax.swing.JComboBox<String> cmbPrecioCompraVentaAdmin;
@@ -6362,9 +6425,10 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel108;
         private javax.swing.JLabel jLabel109;
         public javax.swing.JLabel jLabel11;
-        private javax.swing.JLabel jLabel110;
+        public javax.swing.JLabel jLabel110;
         private javax.swing.JLabel jLabel111;
         private javax.swing.JLabel jLabel112;
+        private javax.swing.JLabel jLabel113;
         private javax.swing.JLabel jLabel114;
         private javax.swing.JLabel jLabel115;
         private javax.swing.JLabel jLabel116;
@@ -6424,13 +6488,14 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel174;
         private javax.swing.JLabel jLabel175;
         private javax.swing.JLabel jLabel176;
+        private javax.swing.JLabel jLabel177;
         private javax.swing.JLabel jLabel178;
         private javax.swing.JLabel jLabel18;
         private javax.swing.JLabel jLabel181;
         private javax.swing.JLabel jLabel182;
         private javax.swing.JLabel jLabel183;
         private javax.swing.JLabel jLabel184;
-        private javax.swing.JLabel jLabel185;
+        public javax.swing.JLabel jLabel185;
         private javax.swing.JLabel jLabel186;
         private javax.swing.JLabel jLabel187;
         private javax.swing.JLabel jLabel188;
@@ -6466,8 +6531,8 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel214;
         private javax.swing.JLabel jLabel215;
         private javax.swing.JLabel jLabel216;
-        private javax.swing.JLabel jLabel217;
-        private javax.swing.JLabel jLabel218;
+        public javax.swing.JLabel jLabel217;
+        public javax.swing.JLabel jLabel218;
         private javax.swing.JLabel jLabel22;
         private javax.swing.JLabel jLabel23;
         private javax.swing.JLabel jLabel24;
@@ -6512,7 +6577,7 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel61;
         private javax.swing.JLabel jLabel62;
         private javax.swing.JLabel jLabel64;
-        private javax.swing.JLabel jLabel65;
+        public javax.swing.JLabel jLabel65;
         private javax.swing.JLabel jLabel66;
         private javax.swing.JLabel jLabel67;
         private javax.swing.JLabel jLabel68;
@@ -6531,7 +6596,7 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JLabel jLabel8;
         private javax.swing.JLabel jLabel80;
         private javax.swing.JLabel jLabel81;
-        private javax.swing.JLabel jLabel82;
+        public javax.swing.JLabel jLabel82;
         private javax.swing.JLabel jLabel83;
         private javax.swing.JLabel jLabel84;
         private javax.swing.JLabel jLabel85;
@@ -6565,7 +6630,7 @@ public class IMenu extends javax.swing.JFrame {
         private javax.swing.JPanel jPanel20;
         private javax.swing.JPanel jPanel21;
         private javax.swing.JPanel jPanel22;
-        private javax.swing.JPanel jPanel23;
+        public javax.swing.JPanel jPanel23;
         private javax.swing.JPanel jPanel24;
         private javax.swing.JPanel jPanel25;
         private javax.swing.JPanel jPanel26;
@@ -6653,6 +6718,7 @@ public class IMenu extends javax.swing.JFrame {
         public com.toedter.calendar.JDateChooser jcFechaReport2;
         public com.toedter.calendar.JDateChooser jcFechaReporteDario;
         public com.toedter.calendar.JDateChooser jcFechaVProducto;
+        public com.toedter.calendar.JDateChooser jcFechaVencimientoFactura;
         public com.toedter.calendar.JYearChooser jcYear;
         public javax.swing.JDialog jdAnotacionPagos;
         public javax.swing.JDialog jdGenerarCodeBarra;
@@ -6732,6 +6798,7 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JLabel lblPrecioVentaProducto;
         public javax.swing.JLabel lblProyeccion;
         public javax.swing.JLabel lblSaldoCliente;
+        public javax.swing.JLabel lblSaldoClienteDolar;
         public javax.swing.JLabel lblSalidaEfectivoFiltro;
         public javax.swing.JLabel lblSalidasKardex;
         public javax.swing.JLabel lblStockInicialKardex;

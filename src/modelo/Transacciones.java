@@ -2,6 +2,8 @@ package modelo;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
@@ -19,6 +21,11 @@ public class Transacciones extends Conexiondb {
     DefaultComboBoxModel combo;
     int banderin;
 
+    private float monto;
+    private Date fecha;
+    private String descripcion,tipoTransacion,moneda;
+    private int idcaja;
+
     public Transacciones() {
         this.cn = null;
         this.pst = null;
@@ -26,9 +33,57 @@ public class Transacciones extends Conexiondb {
         this.banderin = 0;
     }
 
-    public void Guardar(float monto, Date fecha, String Descripcion, String TipoTrans, int idCaja) {
+	public float getMonto() {
+		return monto;
+	}
+
+	public void setMonto(float monto) {
+		this.monto = monto;
+	}
+
+	public Date getFecha() {
+		return fecha;
+	}
+
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	public String getTipoTransacion() {
+		return tipoTransacion;
+	}
+
+	public void setTipoTransacion(String tipoTransacion) {
+		this.tipoTransacion = tipoTransacion;
+	}
+
+	public String getMoneda() {
+		return moneda;
+	}
+
+	public void setMoneda(String moneda) {
+		this.moneda = moneda;
+	}
+
+	public int getIdcaja() {
+		return idcaja;
+	}
+
+	public void setIdcaja(int idcaja) {
+		this.idcaja = idcaja;
+	}
+
+    public void Guardar(float monto, Date fecha, String Descripcion, String TipoTrans, int idCaja, String moneda) {
         cn = Conexion();
-        this.consulta = "INSERT INTO transaccion(monto, fecha, descripcion, tipoTransaccion, caja) VALUES(?,?,?,?,?)";
+        this.consulta = "INSERT INTO transaccion(monto, fecha, descripcion, tipoTransaccion, caja, moneda) VALUES(?,?,?,?,?,?)";
         try {
             pst = this.cn.prepareStatement(this.consulta);
             pst.setFloat(1, monto);
@@ -36,6 +91,7 @@ public class Transacciones extends Conexiondb {
             pst.setString(3, Descripcion);
             pst.setString(4, TipoTrans);
             pst.setInt(5, idCaja);
+	    pst.setString(6, moneda);
             this.banderin = pst.executeUpdate();
             if (this.banderin > 0) {
                 JOptionPane.showMessageDialog(null, "Gasto guardado exitosamente", "Infromacion", JOptionPane.INFORMATION_MESSAGE);
@@ -47,9 +103,9 @@ public class Transacciones extends Conexiondb {
 
     }
 
-    public void Actualizar(int id, float monto, Date fecha, String Descripcion, String tipoTrans, int caja) {
+    public void Actualizar(int id, float monto, Date fecha, String Descripcion, String tipoTrans, int caja, String moneda) {
         cn = Conexion();
-        this.consulta = "UPDATE transaccion SET tipoTransaccion = ?, monto = ?, caja = ?, fecha = ?, descripcion = ? WHERE id = ?";
+        this.consulta = "UPDATE transaccion SET tipoTransaccion = ?, monto = ?, caja = ?, fecha = ?, descripcion = ?, moneda = ? WHERE id = ?";
         try {
             pst = this.cn.prepareStatement(this.consulta);
             pst.setString(1, tipoTrans);
@@ -57,7 +113,8 @@ public class Transacciones extends Conexiondb {
             pst.setInt(3, caja);
             pst.setDate(4, fecha);
             pst.setString(5, Descripcion);
-            pst.setInt(6, id);
+	    pst.setString(6,moneda);
+            pst.setInt(7, id);
             this.banderin = pst.executeUpdate();
             if (this.banderin > 0) {
                 JOptionPane.showMessageDialog(null, "Gasto actualizado exitosamente", "Infromacion", JOptionPane.INFORMATION_MESSAGE);
@@ -86,14 +143,14 @@ public class Transacciones extends Conexiondb {
 
     public DefaultTableModel Mostrar(String Buscar) {
         cn = Conexion();
-        this.resgistros = new String[6];
-        String[] titulos = {"Id Transac.", "Tipo Transac", "Caja", "Monto", "Fecha", "Descripción"};
+        this.resgistros = new String[7];
+        String[] titulos = {"Id Transac.", "Tipo Transac", "Caja", "Monto", "Moneda", "Fecha", "Descripción"};
         this.modelo = new DefaultTableModel(null, titulos) {
             public boolean isCellEditable(int row, int col) {
                 return false;
             }
         };
-        this.consulta = "SELECT transaccion.id,transaccion.tipoTransaccion,cajas.caja,transaccion.monto,transaccion.fecha,transaccion.descripcion FROM transaccion INNER JOIN cajas ON(transaccion.caja=cajas.id) WHERE CONCAT(transaccion.id, transaccion.monto, transaccion.fecha, cajas.caja, transaccion.tipoTransaccion) LIKE '%" + Buscar + "%'";
+        this.consulta = "SELECT transaccion.id,transaccion.tipoTransaccion,cajas.caja,transaccion.monto,transaccion.fecha,transaccion.descripcion,moneda FROM transaccion INNER JOIN cajas ON(transaccion.caja=cajas.id) WHERE CONCAT(transaccion.id, transaccion.monto, transaccion.fecha, cajas.caja, transaccion.tipoTransaccion) LIKE '%" + Buscar + "%'";
         try {
             pst = this.cn.prepareStatement(this.consulta);
             ResultSet rs = pst.executeQuery();
@@ -102,8 +159,9 @@ public class Transacciones extends Conexiondb {
                 this.resgistros[1] = rs.getString("tipoTransaccion");
                 this.resgistros[2] = rs.getString("caja");
                 this.resgistros[3] = rs.getString("Monto");
-                this.resgistros[4] = rs.getString("Fecha");
-                this.resgistros[5] = rs.getString("descripcion");
+		this.resgistros[4] = rs.getString("moneda");
+                this.resgistros[5] = rs.getString("Fecha");
+                this.resgistros[6] = rs.getString("descripcion");
                 this.modelo.addRow(this.resgistros);
             }
             cn.close();
@@ -146,5 +204,31 @@ public class Transacciones extends Conexiondb {
             JOptionPane.showMessageDialog(null, e+" en la funcion idCaja");
         }
         return this.combo;
+    }
+
+    public void editar(int id){
+	this.cn = Conexion();
+	this.consulta = "SELECT * FROM transaccion WHERE id = ?";
+	    try {
+		    this.pst = this.cn.prepareStatement(this.consulta);
+		    this.pst.setInt(1,id);
+		    ResultSet rs = this.pst.executeQuery();
+		    while (rs.next()) {			    
+			   this.fecha = rs.getDate("fecha"); 
+			   this.idcaja= 1;
+			   this.monto = rs.getFloat("monto");
+			   this.moneda = rs.getString("moneda");
+			   this.descripcion = rs.getString("descripcion");
+			  this.tipoTransacion = rs.getString("tipoTransaccion");
+		    }
+	    } catch (Exception e) {
+		    e.printStackTrace();
+	    }finally{
+		try {
+			this.cn.close();
+		} catch (SQLException ex) {
+			Logger.getLogger(Transacciones.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	    }
     }
 }

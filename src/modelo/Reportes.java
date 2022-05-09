@@ -75,9 +75,24 @@ public class Reportes extends Conexiondb {
 	//mostrar facturas realizadas por dia 
 	public DefaultTableModel ReporteDiario(Date Fecha) {
 		cn = Conexion();
-		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id as idCredito, cajas.caja, facturas.anotaciones,totalDolarisado from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? ORDER BY facturas.id DESC";
-		String[] Resultados = new String[10];
-		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja", "N. fact. M", "Dolarizada"};
+		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta,"
+			+ " creditos.id as idCredito, cajas.caja, facturas.anotaciones,totalDolarisado, fechaVencimiento from facturas"
+			+ " LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id)"
+			+ " LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.fecha = ? ORDER BY facturas.id DESC";
+		String[] Resultados = new String[11];
+		String[] titulos = {
+			"Factura",
+			"Fecha",
+			"IVA",
+			"Total",
+			"Comprador",
+			"Forma Pago",
+			"N° Credito",
+			"Caja",
+			"N. fact. M",
+			"Dolarizada",
+			"Fecha Venc."
+		};
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
@@ -102,6 +117,7 @@ public class Reportes extends Conexiondb {
 				} else {
 					Resultados[9] = "no";
 				}
+				Resultados[10] = rs.getString("fechaVencimiento");
 				modelo.addRow(Resultados);
 			}
 			cn.close();
@@ -298,7 +314,30 @@ public class Reportes extends Conexiondb {
 	public float TotalGastosDiario(Date fecha1) {
 		cn = Conexion();
 		float totalGasto = 0;
-		this.consulta = "SELECT SUM(monto) AS totalGasto FROM transaccion INNER JOIN cajas ON(transaccion.caja = cajas.id) WHERE fecha = ? AND cajas.caja='CAJA1' AND transaccion.tipoTransaccion = 'Egreso'";
+		this.consulta = "SELECT SUM(monto) AS totalGasto FROM transaccion INNER JOIN cajas ON(transaccion.caja = cajas.id)"
+			+ " WHERE fecha = ? AND cajas.caja='CAJA1' AND transaccion.tipoTransaccion = 'Egreso' AND moneda = 'Córdobas'";
+		try {
+			pst = this.cn.prepareStatement(this.consulta);
+			pst.setDate(1, fecha1);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				totalGasto = rs.getFloat("totalGasto");
+			}
+			if (totalGasto == 0) {
+				totalGasto = 0;
+			}
+			cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + " gasto diario");
+		}
+		return totalGasto;
+	}
+
+	public float totalGastosDiariosDolar(Date fecha1) {
+		cn = Conexion();
+		float totalGasto = 0;
+		this.consulta = "SELECT SUM(monto) AS totalGasto FROM transaccion INNER JOIN cajas ON(transaccion.caja = cajas.id)"
+			+ " WHERE fecha = ? AND cajas.caja='CAJA1' AND transaccion.tipoTransaccion = 'Egreso' AND moneda = 'Dolar'";
 		try {
 			pst = this.cn.prepareStatement(this.consulta);
 			pst.setDate(1, fecha1);
@@ -356,10 +395,30 @@ public class Reportes extends Conexiondb {
 		return ingresos;
 	}
 
-	public float ingresoDiarioEfectivo(Date fecha) {
+	public float ingresoDiarioEfectivoCordobas(Date fecha) {
 		this.cn = Conexion();
 		float ingresos = 0;
-		this.consulta = "SELECT SUM(t.monto) AS total FROM transaccion AS t INNER JOIN cajas AS c ON(t.caja = c.id) WHERE t.fecha = ? AND c.caja = 'CAJA1' AND t.tipoTransaccion = 'Ingreso'";
+		this.consulta = "SELECT SUM(t.monto) AS total FROM transaccion AS t INNER JOIN cajas AS c ON(t.caja = c.id) WHERE t.fecha = ? AND"
+			+ " c.caja = 'CAJA1' AND t.tipoTransaccion = 'Ingreso' AND t.moneda = 'Córdobas'";
+		try {
+			this.pst = this.cn.prepareStatement(this.consulta);
+			this.pst.setDate(1, fecha);
+			ResultSet rs = this.pst.executeQuery();
+			while (rs.next()) {
+				ingresos = rs.getFloat("total");
+			}
+			this.cn.close();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(null, e + " en la funcion IngresoDiarioEfectivo en modelo Reportes");
+		}
+		return ingresos;
+	}
+
+	public float ingresoDiarioEfectivoDolar(Date fecha) {
+		this.cn = Conexion();
+		float ingresos = 0;
+		this.consulta = "SELECT SUM(t.monto) AS total FROM transaccion AS t INNER JOIN cajas AS c ON(t.caja = c.id) WHERE t.fecha = ? AND"
+			+ " c.caja = 'CAJA1' AND t.tipoTransaccion = 'Ingreso' AND t.moneda = 'Dolar'";
 		try {
 			this.pst = this.cn.prepareStatement(this.consulta);
 			this.pst.setDate(1, fecha);
@@ -1032,32 +1091,54 @@ public class Reportes extends Conexiondb {
 
 	public DefaultTableModel BuscarFactura(int id) {
 		this.cn = Conexion();
-		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta, creditos.id as idCredito, cajas.caja from facturas LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id) LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.id = ?";
-		String[] facturas = new String[8];
-		String[] titulos = {"Factura", "Fecha", "IVA", "Total", "Comprador", "Forma Pago", "N° Credito", "Caja"};
+		this.consulta = "SELECT facturas.id,facturas.fecha AS fechaFactura, impuestoISV, totalFactura, nombre_comprador, formapago.tipoVenta,"
+			+ " creditos.id as idCredito, cajas.caja, facturas.anotaciones,totalDolarisado, fechaVencimiento from facturas"
+			+ " LEFT JOIN formapago ON(formapago.id = facturas.tipoVenta) LEFT JOIN creditos ON(facturas.credito = creditos.id)"
+			+ " LEFT JOIN cajas ON(facturas.caja=cajas.id) WHERE facturas.id = ?";
+		String[] Resultados = new String[11];
+		String[] titulos = {
+			"Factura",
+			"Fecha",
+			"IVA",
+			"Total",
+			"Comprador",
+			"Forma Pago",
+			"N° Credito",
+			"Caja",
+			"N. fact. M",
+			"Dolarizada",
+			"Fecha Venc."
+		};
 		this.modelo = new DefaultTableModel(null, titulos) {
 			public boolean isCellEditable(int row, int col) {
 				return false;
 			}
 		};
 		try {
-			this.pst = this.cn.prepareStatement(this.consulta);
-//            this.pst.setDate(1, fecha);
-			this.pst.setInt(1, id);
-			ResultSet rs = this.pst.executeQuery();
+			pst = this.cn.prepareStatement(consulta);
+			pst.setInt(1, id);
+			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
-				facturas[0] = rs.getString("id");
-				facturas[1] = rs.getString("fechaFactura");
-				facturas[2] = rs.getString("impuestoISV");
-				facturas[3] = rs.getString("totalFactura");
-				facturas[4] = rs.getString("nombre_comprador");
-				facturas[5] = rs.getString("tipoVenta");
-				facturas[6] = rs.getString("idCredito");
-				facturas[7] = rs.getString("caja");
-				modelo.addRow(facturas);
+				Resultados[0] = rs.getString("id");
+				Resultados[1] = rs.getString("fechaFactura");
+				Resultados[2] = rs.getString("impuestoISV");
+				Resultados[3] = rs.getString("totalFactura");
+				Resultados[4] = rs.getString("nombre_comprador");
+				Resultados[5] = rs.getString("tipoVenta");
+				Resultados[6] = rs.getString("idCredito");
+				Resultados[7] = rs.getString("caja");
+				Resultados[8] = rs.getString("anotaciones");
+				if (rs.getString("totalDolarisado") != null && rs.getInt("totalDolarisado") == 1) {
+					Resultados[9] = "si";
+				} else {
+					Resultados[9] = "no";
+				}
+				Resultados[10] = rs.getString("fechaVencimiento");
+				modelo.addRow(Resultados);
 			}
+			cn.close();
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, e + "Error en la funcion BuscarFactura en modelo Reportes");
+			JOptionPane.showMessageDialog(null, e + "funcion reporteDiario");
 		}
 		return this.modelo;
 	}

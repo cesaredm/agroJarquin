@@ -28,7 +28,7 @@ public class Facturacion extends Conexiondb {
 	private String factura, productoDetalle, precio, cantidad, importeDetalle, bandera;
 	//datos de facturacion
 	private int caja;
-	private Date fecha;
+	private Date fecha,fechaVencimiento;
 	private String nombreComprador;
 	private String credito;
 	private String pago;
@@ -127,12 +127,21 @@ public class Facturacion extends Conexiondb {
 	public void setPrecioDolar(float precio) {
 		this.precioDolar = precio;
 	}
+
+	public Date getFechaVencimiento() {
+		return fechaVencimiento;
+	}
+
+	public void setFechaVencimiento(Date fechaVencimiento) {
+		this.fechaVencimiento = fechaVencimiento;
+	}
+	
 //Guardar Factura
 
 	public void GuardarFactura() {
 		cn = Conexion();
 		this.consulta = "INSERT INTO facturas(caja ,fecha, nombre_comprador, credito, tipoVenta, impuestoISV,"
-			+ " totalFactura, anotaciones, totalDolarisado) VALUES(?,?,?,?,?,?,?,?,?)";
+			+ " totalFactura, anotaciones, totalDolarisado, fechaVencimiento) VALUES(?,?,?,?,?,?,?,?,?,?)";
 		int idCredito = 0, formaPago = Integer.parseInt(pago);
 		float impuestoIVA = Float.parseFloat(iva), totalFactura = Float.parseFloat(total);
 		if (!credito.equals("")) {
@@ -148,6 +157,7 @@ public class Facturacion extends Conexiondb {
 				pst.setFloat(7, totalFactura);
 				pst.setString(8, anotacion);
 				pst.setInt(9, dolarizado);
+				pst.setDate(10, fechaVencimiento);
 				this.banderin = pst.executeUpdate();
 				if (banderin > 0) {
 					//JOptionPane.showMessageDialog(null, "Factura Guardada Exitosamente", "Informacion", JOptionPane.WARNING_MESSAGE);
@@ -168,6 +178,7 @@ public class Facturacion extends Conexiondb {
 				pst.setFloat(7, totalFactura);
 				pst.setString(8, anotacion);
 				pst.setInt(9, dolarizado);
+				pst.setDate(10, fechaVencimiento);
 				this.banderin = pst.executeUpdate();
 				if (banderin > 0) {
 					//JOptionPane.showMessageDialog(null, "Factura Guardada Exitosamente", "Informacion", JOptionPane.WARNING_MESSAGE);
@@ -452,12 +463,24 @@ public class Facturacion extends Conexiondb {
 		}
 	}
 
-	public void ActualizarFactura(int caja, String id, Date fecha, String nombreComprador, String credito, String pago, String iva, String total, String anotaciones) {
+	public void ActualizarFactura(
+		int caja,
+		String id,
+		Date fecha,
+		String nombreComprador,
+		String credito,
+		String pago,
+		String iva,
+		String total,
+		String anotaciones,
+		Date fechaVencimiento
+	) {
 		cn = Conexion();
 		if (credito.equals("")) {
 			credito = null;
 		}
-		this.consulta = "UPDATE facturas SET caja = ?, credito = ?, nombre_comprador = ?,fecha = ? , tipoVenta = ?, impuestoISV = ?, totalFactura = ?, anotaciones = ? WHERE id=?";
+		this.consulta = "UPDATE facturas SET caja = ?, credito = ?, nombre_comprador = ?,fecha = ? , tipoVenta = ?, impuestoISV = ?,"
+			+ " totalFactura = ?, anotaciones = ?, fechaVencimiento = ? WHERE id=?";
 		try {
 			pst = this.cn.prepareStatement(this.consulta);
 			pst.setInt(1, caja);
@@ -468,7 +491,8 @@ public class Facturacion extends Conexiondb {
 			pst.setString(6, iva);
 			pst.setString(7, total);
 			pst.setString(8, anotaciones);
-			pst.setString(9, id);
+			pst.setDate(9, fechaVencimiento);
+			pst.setString(10, id);
 			pst.execute();
 			this.banderin = pst.executeUpdate();
 			if (this.banderin > 0) {

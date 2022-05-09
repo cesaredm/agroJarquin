@@ -33,7 +33,7 @@ import vista.IMenu;
 public class CtrlCreditos extends PrintReportes implements ActionListener, CaretListener, MouseListener {
 
     IMenu menu;
-    Creditos creditos;
+    static Creditos creditos;
     PagosCreditos pagos;
     Reportes report;
     CtrlReportes ctrlReport;
@@ -44,7 +44,7 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
 
     public CtrlCreditos(IMenu menu, Creditos creditos) {
         this.menu = menu;
-        this.creditos = creditos;
+        CtrlCreditos.creditos = creditos;
         this.pagos = new PagosCreditos();
         this.report = new Reportes();
         this.ctrlReport = new CtrlReportes(menu, report);
@@ -323,6 +323,7 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
             saldoCordobas = this.creditos.getCreditoCordobas() - this.creditos.getPagosCordobas();
 	    saldoDolar = this.creditos.getCreditoDolar() - this.creditos.getPagosDolar();
             menu.lblSaldoCliente.setText("" + saldoCordobas);
+	    menu.lblSaldoClienteDolar.setText(""+saldoDolar);
         }
     }
 
@@ -491,7 +492,7 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
                 menu.txtCreditoPago.setText(credito);
                 menu.txtMontoPago.setText("0.0");
                 menu.txtMontoPago.requestFocus();
-                menu.pagosAcreditos.setSize(860, 500);
+                menu.pagosAcreditos.setSize(900, 500);
                 menu.pagosAcreditos.setVisible(true);
                 menu.pagosAcreditos.setLocationRelativeTo(null);
 
@@ -508,7 +509,18 @@ public class CtrlCreditos extends PrintReportes implements ActionListener, Caret
     }
 
     public float limiteCredito(String id) {
-
         return creditos.limiteCredito(id);
+    }
+
+    public static void cambiarEstado(int credito){
+	   float saldoDolar,saldoCordobas;
+	   creditos.saldoYpagos(credito);
+	  saldoCordobas = creditos.getCreditoCordobas() - creditos.getPagosCordobas();
+	  saldoDolar = creditos.getCreditoDolar() - creditos.getPagosDolar();
+	  if(saldoCordobas == 0.0 && saldoDolar == 0.0){
+		creditos.ActualizarEstadoCredito(credito, "Abierto");
+	  }else{
+		creditos.ActualizarEstadoCredito(credito, "Pendiente");
+	  }
     }
 }

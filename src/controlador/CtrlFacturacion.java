@@ -65,6 +65,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 		this.permiso = permiso;
 		this.menu = menu;
 		this.factura = factura;
+		this.menu.jcFechaVencimientoFactura.setDate(new Date());
 		this.menu.cmbFormaPago.setModel(factura.FormasPago());
 		this.formato = new DecimalFormat("#############.00");
 		this.c = new Creditos();
@@ -421,7 +422,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			int filas = this.modelo.getRowCount();//Cuento las filas de la tabla Factura
 			//guardara la factura solo si el boton guardar factura esta habilatado
 			if (menu.btnGuardarFactura.isEnabled()) {
-				Date fecha;
+				Date fecha, fechaVencimiento;
 				int dolarizado;
 				String[] ArregloImprimir = new String[filas];
 				String factura = "",
@@ -453,6 +454,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				//capturo la fecha del dateshooser
 				fecha = menu.jcFechaFactura.getDate();
 				long fechaF = fecha.getTime();//
+				fechaVencimiento = menu.jcFechaVencimientoFactura.getDate();
 				//convertir la fecha obtenida a formato sql
 				java.sql.Date fechaFactura = new java.sql.Date(fechaF);
 				anotaciones = menu.txtNfacturaMembretada.getText();
@@ -478,6 +480,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				this.factura.setTotal(totalFactura);
 				this.factura.setAnotacion(anotaciones);
 				this.factura.setDolarizado(dolarizado);
+				this.factura.setFechaVencimiento(new java.sql.Date(fechaVencimiento.getTime()));
 				this.factura.GuardarFactura();
 				//for para recorrer la tabla factura
 				for (int cont = 0; cont < filas; cont++) {
@@ -515,8 +518,11 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				DeshabilitarBtnGuardarFactura();
 				productos.MostrarProductos("");
 				productos.MostrarProductosVender("");
-				creditos.ActualizarEstadoCreditoApendiente();
-				creditos.ActualizarEstadoCreditoAabierto();
+				CtrlCreditos.cambiarEstado(
+					(idCredito.equals("")) ? 0 : Integer.parseInt(idCredito)
+				);
+//				creditos.ActualizarEstadoCreditoApendiente();
+//				creditos.ActualizarEstadoCreditoAabierto();
 				//creditos.MostrarCreditos("");
 				creditos.MostrarCreditosCreados("");
 				reportes.MostrarReportesDario(this.fecha);
@@ -556,7 +562,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			int filas = this.modelo.getRowCount();//Cuento las filas de la tabla Factura
 			//guardara la factura solo si el boton guardar factura esta habilatado
 			if (menu.btnGuardarFactura.isEnabled()) {
-				Date fecha;
+				Date fecha,fechaVencimiento;
 				int dolarizado;
 				String[] ArregloImprimir = new String[filas];
 				String factura = "",
@@ -588,6 +594,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				//capturo la fecha del dateshooser
 				fecha = menu.jcFechaFactura.getDate();
 				long fechaF = fecha.getTime();//
+				fechaVencimiento = menu.jcFechaVencimientoFactura.getDate();
 				//convertir la fecha obtenida a formato sql
 				java.sql.Date fechaFactura = new java.sql.Date(fechaF);
 				anotaciones = menu.txtNfacturaMembretada.getText();
@@ -613,6 +620,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				this.factura.setAnotacion(anotaciones);
 				this.factura.setPrecioDolar(Float.parseFloat(tasaCambio));
 				this.factura.setDolarizado(dolarizado);
+				this.factura.setFechaVencimiento(new java.sql.Date(fechaVencimiento.getTime()));
 				this.factura.GuardarFactura();
 				//for para recorrer la tabla factura
 				for (int cont = 0; cont < filas; cont++) {
@@ -1441,7 +1449,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			int filas = this.modelo.getRowCount();//Cuento las filas de la tabla Factura
 			if (filas == nD.length)//nD quiere decir numero de detalles condicion para guardar solo los cambios de las filas de la factura actual no se pueda agregar mas productos ni quitar solo cambiar ya que solo es edicio de la facura
 			{
-				Date fecha;
+				Date fecha,fechaVencimiento;
 				String factura,
 					id,
 					cantidad,
@@ -1455,6 +1463,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 					nombreComprador,
 					anotaciones;//variables para capturar los datos a guardar
 				fecha = menu.jcFechaFactura.getDate();//capturo la fecha del dateshooser
+				fechaVencimiento = menu.jcFechaVencimientoFactura.getDate();
 				long fechaF = fecha.getTime();//
 				java.sql.Date fechaFactura = new java.sql.Date(fechaF);//convertir la fecha obtenida a formato sql
 				nombreComprador = menu.txtCompradorFactura.getText();
@@ -1465,7 +1474,18 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 				idFormaPago = this.factura.ObtenerFormaPago(formaPago);//capturo el id de la forma de pago que retorna la funcion obtenerformapago de la clase facturacion
 				anotaciones = menu.txtNfacturaMembretada.getText();
 				factura = menu.txtNumeroFactura.getText();//capturo id de factura ala que pertenece el detalle de factura
-				this.factura.ActualizarFactura(1, factura, fechaFactura, nombreComprador, idCredito, idFormaPago, iva, totalFactura, anotaciones);//envio los datos a actualizar de la factura
+				this.factura.ActualizarFactura(
+					1,
+					factura,
+					fechaFactura,
+					nombreComprador,
+					idCredito,
+					idFormaPago,
+					iva,
+					totalFactura,
+					anotaciones,
+					new java.sql.Date(fechaVencimiento.getTime())
+				);//envio los datos a actualizar de la factura
 				for (int cont = 0; cont < filas; cont++)//for para recorrer la tabla factura
 				{
 					id = (String) this.modelo.getValueAt(cont, 0);//capturo el id de producto para guardar en detallefactura
@@ -1547,7 +1567,8 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			comprador = "",
 			fecha = "",
 			credito = "",
-			anotaciones = "";
+			anotaciones = "",
+			fechaVencimiento = "";
 		//convertir el formato sql a Date con simpleDateFormat
 		SimpleDateFormat spf = new SimpleDateFormat("yyyy-MM-dd");
 		//nD quiere decir numero de detalles es la variable que guarda el numero de detalles que van en la factura a editar
@@ -1559,6 +1580,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			idFactura = menu.tblReporte.getValueAt(filaseleccionada, 0).toString();
 			//obtengo la fecha de la factura
 			fecha = menu.tblReporte.getValueAt(filaseleccionada, 1).toString();
+			fechaVencimiento = menu.tblReporte.getValueAt(filaseleccionada, 11).toString();
 			//obtengo el nombre comprador
 			comprador = menu.tblReporte.getValueAt(filaseleccionada, 4).toString();//antes 4
 			//obtengo el impuesto
@@ -1572,6 +1594,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			//obtengo la forma de pago
 			pago = menu.tblReporte.getValueAt(filaseleccionada, 5).toString();//antes 5
 			anotaciones = (String) menu.tblReporte.getValueAt(filaseleccionada, 8);
+			
 			//realiza el calculo para obtener el subtotal
 			subTotal = totalFactura - iva;
 			//validacion de lo que estoy obteniendo en la variable credito
@@ -1581,6 +1604,7 @@ public class CtrlFacturacion implements ActionListener, CaretListener, MouseList
 			//lleno los campos del formulario factura
 			menu.txtCreditoFactura.setText(credito);
 			menu.jcFechaFactura.setDate(spf.parse(fecha));
+			menu.jcFechaVencimientoFactura.setDate(spf.parse(fechaVencimiento));
 			menu.txtSubTotal.setText("" + subTotal);
 			menu.txtTotal.setText("" + totalFactura);
 			menu.txtImpuesto.setText("" + iva);
