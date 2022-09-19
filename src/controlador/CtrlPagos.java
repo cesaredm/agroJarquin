@@ -42,6 +42,10 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 	DecimalFormat formato;
 	CmbFormaPago formaPagoModel;
 	float precioDolar;
+	SimpleDateFormat sdf;
+
+	float saldoAnteriorCordobas, saldoAnteriorDolar, saldoDolar, saldoCordobas, montoPago;
+	String moneda;
 
 	public CtrlPagos(IMenu menu, PagosCreditos pagos) {
 		this.menu = menu;
@@ -78,51 +82,15 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 			guardarPago();
 		}
 		if (e.getSource() == menu.btnActualizarPago) {
-			int c, factura = (int) menu.jsFacturaPagoU.getValue();
-			float montoPago,
-				precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText()),
-				utilidadPago;
-				this.formaPagoModel = (CmbFormaPago) menu.cmbFormaPagoCredito.getSelectedItem();
-			String credito = menu.txtCreditoPago.getText(),
-				monto = menu.txtMontoPago.getText(),
-				anotaciones = menu.txtAreaAnotacionPagos.getText();
-			Date f = menu.jcFechaPago.getDate();
-			int idFormaPago = this.formaPagoModel.getId();
-			long fecha = f.getTime();
-			java.sql.Date fechaPago = new java.sql.Date(fecha);
-			if (!credito.equals("") && !monto.equals("")) {
-				if (isNumeric(credito) && isNumeric(monto)) {
-					c = Integer.parseInt(credito);
-					montoPago = Float.parseFloat(monto);
-					utilidadPago = this.pagos.utilidadXfactura(factura, precioDolar, montoPago);
-					pagos.Actualizar(this.id, c, montoPago, fechaPago, idFormaPago, anotaciones, utilidadPago);
-					MostrarPagos("");
-					ctrlC.MostrarCreditos("");
-					CtrlCreditos.cambiarEstado(this.pagos.getCredito());
-//					ctrlC.ActualizarEstadoCreditoApendiente();
-//					ctrlC.ActualizarEstadoCreditoAabierto();
-					LimpiarPago();
-					ctrlR.reportesDiarios(this.fecha);
-					ctrlR.MostrarReportesDario(this.fecha);
-					ctrlR.ReporteGlobal();
-					ctrlR.SumaTotalFiltroReporte(this.fecha, this.fecha);
-					ctrlC.MostrarCreditosCreados("");
-					menu.btnGuardarPago.setEnabled(true);
-					menu.btnActualizarPago.setEnabled(false);
-				}
-			} else {
-
-			}
+			actualizar();
 		}
 		if (e.getSource() == menu.btnNuevoPago) {
 			HabilitarPago();
 			LimpiarPago();
-			menu.txtMontoPago.requestFocus();
+			menu.jsMontoPago.requestFocus();
 		}
 		if (e.getSource() == menu.EditarPago) {
 			int filaseleccionada = menu.tblPagos.getSelectedRow();
-			String monto, credito, formaPago, anotaciones;
-			Date fecha;
 			int id;
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			try {
@@ -131,16 +99,16 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 				} else {
 					this.modelo = (DefaultTableModel) menu.tblPagos.getModel();
 					id = Integer.parseInt(this.modelo.getValueAt(filaseleccionada, 0).toString());
-					this.pagos.editar(id);
-					this.id = String.valueOf(id);
-
+					this.pagos.setId(id);
+					this.pagos.editar();
 					HabilitarPago();
-					menu.txtMontoPago.setText(""+this.pagos.getMonto());
-					menu.txtCreditoPago.setText(""+this.pagos.getCredito());
+					menu.jsMontoPago.setValue(this.pagos.getMonto());
+					menu.jsCreditoPago.setValue(this.pagos.getCredito());
 					menu.jcFechaPago.setDate(this.pagos.getFecha());
 					menu.cmbFormaPagoCredito.setSelectedItem(new CmbFormaPago(this.pagos.getFormaPago(), ""));
-					menu.txtAreaAnotacionPagos.setText(""+this.pagos.getAnotacion());
+					menu.txtAreaAnotacionPagos.setText("" + this.pagos.getAnotacion());
 					menu.cmbMonedaPago.setSelectedItem(this.pagos.getMoneda());
+					menu.txtNumeroComprobante.setText(this.pagos.getNumeroComprobante());
 					menu.btnGuardarPago.setEnabled(false);
 					menu.btnActualizarPago.setEnabled(true);
 				}
@@ -152,7 +120,7 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 			this.eliminar();
 		}
 		if (e.getSource() == menu.btnMostrarPagosRegistrados) {
-			menu.pagosAcreditos.setSize(860, 550);
+			menu.pagosAcreditos.setSize(1200, 500);
 			menu.pagosAcreditos.setVisible(true);
 			menu.pagosAcreditos.setLocationRelativeTo(null);
 		}
@@ -203,30 +171,30 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 
 	//metodo para limpiar el formulario Pagos
 	public void LimpiarPago() {
-		menu.txtMontoPago.setText("");
+		menu.jsMontoPago.setValue(0);
 		menu.cmbFormaPagoCredito.setSelectedItem("Efectivo");
 		menu.txtAreaAnotacionPagos.setText("");
-		menu.jsFacturaPagoU.setValue(0);
+		menu.txtNumeroComprobante.setText("");
 	}
 
 	public void HabilitarPago() {
 		menu.txtAreaAnotacionPagos.setEnabled(true);
-		menu.jsFacturaPagoU.setEnabled(true);
 		menu.btnActualizarPago.setEnabled(false);
 		menu.btnGuardarPago.setEnabled(true);
+		menu.txtNumeroComprobante.setEnabled(true);
 	}
 	//funcion para deshabilitar componentes de el formulario de pago
 
-	public void showFormasPago(){
+	public void showFormasPago() {
 		this.pagos.getFormasPago();
 		this.menu.cmbFormaPagoCredito.setModel(this.pagos.combo);
 	}
-	
+
 	public void DeshabilitarPagos() {
 		menu.btnActualizarPago.setEnabled(false);
 		menu.btnGuardarPago.setEnabled(false);
 		menu.txtAreaAnotacionPagos.setEnabled(false);
-		menu.jsFacturaPagoU.setEnabled(false);
+		menu.txtNumeroComprobante.setEnabled(false);
 	}//lbls para hacer visible el pago en la ventana pago
 
 	//mostrar el id del pago actual
@@ -234,85 +202,162 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 		this.menu.lblNumeroPago.setText("" + creditos.obtenerUltimoPago());
 	}
 
-	public void guardarPago() {
-		this.precioDolar = Float.parseFloat(menu.txtPrecioDolarVenta.getText());
-		int c, factura = (int) menu.jsFacturaPagoU.getValue();
-		float montoPago,
-			utilidadPago = 0,
-			saldo = 0,
-			saldoActual = 0;
-		String fechaString = "",
-			credito = menu.txtCreditoPago.getText(),
-			monto = menu.txtMontoPago.getText(),
-			anotaciones = menu.txtAreaAnotacionPagos.getText(),
-			moneda = this.menu.cmbMonedaPago.getSelectedItem().toString();
+	public void capturarDatos() {
+		this.formaPagoModel = (CmbFormaPago) menu.cmbFormaPagoCredito.getSelectedItem();
+		this.pagos.setCredito(Integer.parseInt(this.menu.jsCreditoPago.getValue().toString()));
+		this.pagos.setMonto(Float.parseFloat(this.menu.jsMontoPago.getValue().toString()));
+		this.pagos.setFecha(new java.sql.Date(this.menu.jcFechaPago.getDate().getTime()));
+		this.pagos.setFormaPago(this.formaPagoModel.getId());
+		this.pagos.setAnotacion(this.menu.txtAreaAnotacionPagos.getText());
+		this.pagos.setMoneda(this.menu.cmbMonedaPago.getSelectedItem().toString());
+		this.pagos.setNumeroComprobante(this.menu.txtNumeroComprobante.getText());
+	}
 
-			this.formaPagoModel = (CmbFormaPago) menu.cmbFormaPagoCredito.getSelectedItem();
-		int idFormaPago = this.formaPagoModel.getId();
-		Date f = menu.jcFechaPago.getDate();
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-YYYY");
-		long fecha = f.getTime();
-		java.sql.Date fechaPago = new java.sql.Date(fecha);
-		fechaString = sdf.format(fecha);
-		if (isNumeric(credito) && isNumeric(monto) && !anotaciones.equals("") && factura > 0) {
-			try {
-				c = Integer.parseInt(credito);
-				montoPago = Float.parseFloat(monto);
-				saldo = pagos.deuda(credito) - pagos.PagosSegunCredito(credito);
-				utilidadPago = this.pagos.utilidadXfactura(factura, this.precioDolar, montoPago);
-				/* VALIDAR QUE EL MONTO INGRESADO NO EXCEDA EL SALDO */
-				if (this.isExcedeSaldo(saldo, montoPago, credito)) {
-					pagos.Guardar(c, montoPago, fechaPago, idFormaPago, anotaciones, utilidadPago, moneda);
-					saldoActual = pagos.deuda(credito) - pagos.PagosSegunCredito(credito);
-					UltimoPago();
-					info.obtenerInfoFactura();
-					imprimir(
-						info.getNombre(),
-						menu.lblNumeroPago.getText(),
-						fechaString,
-						this.pagos.cliente(credito),
-						credito,
-						this.formato.format(saldo),
-						monto,
-						this.formato.format(saldoActual)
-					);
-					MostrarPagos("");
-					LimpiarPago();
-					ctrlC.MostrarCreditos("");
+	public void actualizar() {
+		int credito;
+		this.sdf = new SimpleDateFormat("d/MMM/y");
+		try {
+			credito = Integer.parseInt(this.menu.jsCreditoPago.getValue().toString());
+			this.montoPago = Float.parseFloat(this.menu.jsMontoPago.getValue().toString());
+			this.moneda = this.menu.cmbMonedaPago.getSelectedItem().toString();
+			this.creditos.saldoYpagos(credito);
+			if (this.moneda.equals("Dolar")) {
+				saldoAnteriorDolar = this.creditos.getCreditoDolar() - this.creditos.getPagosDolar();
+				saldoDolar = saldoAnteriorDolar - this.montoPago;
+			} else {
+				saldoAnteriorCordobas = this.creditos.getCreditoCordobas() - this.creditos.getPagosCordobas();
+				saldoCordobas = saldoAnteriorCordobas - this.montoPago;
+			}
+			//utilidadPago = this.pagos.utilidadXfactura(factura, this.precioDolar, montoPago);
+			/* VALIDAR QUE EL MONTO INGRESADO NO EXCEDA EL SALDO */
+			if (this.isExcedeSaldo(saldoDolar, saldoCordobas)) {
+				capturarDatos();
+				pagos.Actualizar();
+				UltimoPago();
+				info.obtenerInfoFactura();
+				imprimir(
+					info.getNombre(),
+					menu.lblNumeroPago.getText(),
+					this.sdf.format(this.menu.jcFechaPago.getDate()),
+					this.pagos.cliente(String.valueOf(credito)),
+					String.valueOf(credito),
+					this.formato.format(saldoAnteriorCordobas),
+					this.formato.format(saldoAnteriorDolar),
+					this.formato.format(montoPago),
+					this.formato.format(saldoCordobas),
+					this.formato.format(saldoDolar),
+					this.moneda
+				);
+				MostrarPagos("");
+				LimpiarPago();
+				ctrlC.MostrarCreditos("");
 //					ctrlC.ActualizarEstadoCreditoApendiente();
 //					ctrlC.ActualizarEstadoCreditoAabierto();
-					CtrlCreditos.cambiarEstado(c);
-					ctrlC.MostrarCreditos("");
-					ctrlR.reportesDiarios(this.fecha);
-					ctrlR.MostrarReportesDario(this.fecha);
-					ctrlR.ReporteGlobal();
-					ctrlR.SumaTotalFiltroReporte(this.fecha, this.fecha);
-					MostrarPagos("");
-					ctrlC.MostrarCreditosCreados("");
-					ctrlC.MostrarCreditosAddFactura("");
-					menu.btnGuardarPago.setEnabled(true);
-					menu.btnActualizarPago.setEnabled(false);
-				} else {
-					JOptionPane.showMessageDialog(null, "Oops.. el monto ingresado excede al saldo actual.!");
-				}
-
-			} catch (Exception e) {
-
+				CtrlCreditos.cambiarEstado(credito);
+				ctrlC.MostrarCreditos("");
+				ctrlR.reportesDiarios(this.fecha);
+				ctrlR.MostrarReportesDario(this.fecha);
+				ctrlR.ReporteGlobal();
+				ctrlR.SumaTotalFiltroReporte(this.fecha, this.fecha);
+				MostrarPagos("");
+				ctrlC.MostrarCreditosCreados("");
+				ctrlC.MostrarCreditosAddFactura("");
+				menu.btnGuardarPago.setEnabled(true);
+				menu.btnActualizarPago.setEnabled(false);
+			} else {
+				JOptionPane.showMessageDialog(null, "Oops.. el monto ingresado excede al saldo actual en " + this.moneda + ".!");
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void guardarPago() {
+		int credito;
+		this.sdf = new SimpleDateFormat("d/MMM/y");
+		try {
+			credito = Integer.parseInt(this.menu.jsCreditoPago.getValue().toString());
+			this.montoPago = Float.parseFloat(this.menu.jsMontoPago.getValue().toString());
+			this.moneda = this.menu.cmbMonedaPago.getSelectedItem().toString();
+			this.creditos.saldoYpagos(credito);
+			if (this.moneda.equals("Dolar")) {
+				saldoAnteriorDolar = this.creditos.getCreditoDolar() - this.creditos.getPagosDolar();
+				saldoDolar = saldoAnteriorDolar - this.montoPago;
+			} else {
+				saldoAnteriorCordobas = this.creditos.getCreditoCordobas() - this.creditos.getPagosCordobas();
+				saldoCordobas = saldoAnteriorCordobas - this.montoPago;
+			}
+			//utilidadPago = this.pagos.utilidadXfactura(factura, this.precioDolar, montoPago);
+			/* VALIDAR QUE EL MONTO INGRESADO NO EXCEDA EL SALDO */
+			if (this.isExcedeSaldo(saldoDolar, saldoCordobas)) {
+				capturarDatos();
+				pagos.Guardar();
+				UltimoPago();
+				info.obtenerInfoFactura();
+				imprimir(
+					info.getNombre(),
+					menu.lblNumeroPago.getText(),
+					this.sdf.format(this.menu.jcFechaPago.getDate()),
+					this.pagos.cliente(String.valueOf(credito)),
+					String.valueOf(credito),
+					this.formato.format(saldoAnteriorCordobas),
+					this.formato.format(saldoAnteriorDolar),
+					this.formato.format(montoPago),
+					this.formato.format(saldoCordobas),
+					this.formato.format(saldoDolar),
+					this.moneda
+				);
+				MostrarPagos("");
+				LimpiarPago();
+				ctrlC.MostrarCreditos("");
+//					ctrlC.ActualizarEstadoCreditoApendiente();
+//					ctrlC.ActualizarEstadoCreditoAabierto();
+				CtrlCreditos.cambiarEstado(credito);
+				ctrlC.MostrarCreditos("");
+				ctrlR.reportesDiarios(this.fecha);
+				ctrlR.MostrarReportesDario(this.fecha);
+				ctrlR.ReporteGlobal();
+				ctrlR.SumaTotalFiltroReporte(this.fecha, this.fecha);
+				MostrarPagos("");
+				ctrlC.MostrarCreditosCreados("");
+				ctrlC.MostrarCreditosAddFactura("");
+				menu.btnGuardarPago.setEnabled(true);
+				menu.btnActualizarPago.setEnabled(false);
+			} 
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	/* VALIDAR SI EL PAGO ESTA EXCEDIENDO EL SALDO DEL CREDITO */
-	public boolean isExcedeSaldo(float saldo, float monto, String credito) {
-		if (monto <= saldo) {
-			return true;
-		} else {
+	public boolean isExcedeSaldo(float saldoDolar, float saldoCordobas) {
+		if (saldoDolar < 0.0) {
+			JOptionPane.showMessageDialog(null, "Oops.. el pago excede al saldo actual");
 			return false;
+		} else if (saldoCordobas < 0.0) {
+			JOptionPane.showMessageDialog(null, "Oops.. el pago excede al saldo actual");
+			return false;
+		} else {
+			return true;
 		}
 	}
 
 	//IMPRIMIR TICKET COMPOBANTE DE PAGO
-	public void imprimir(String tienda, String idPago, String fecha, String cliente, String credito, String totalCredito, String monto, String saldo) {
+	public void imprimir(
+		String tienda,
+		String idPago,
+		String fecha,
+		String cliente,
+		String credito,
+		String totalCreditoCordobas,
+		String totalCreditoDolar,
+		String monto,
+		String saldoCordobas,
+		String saldoDolar,
+		String moneda
+	) {
 		try {
 
 			reiniciar();
@@ -326,12 +371,14 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 				.writeLF("N° pago:" + idPago)
 				.writeLF("Cliente:" + cliente)
 				.writeLF("Fecha:" + fecha)
-				.writeLF("Total crédito:" + totalCredito)
-				.writeLF("Monto de abono:" + monto)
-				.write("Saldo:").writeLF(bold, saldo)
+				.writeLF("Total crédito C$:" + totalCreditoCordobas)
+				.writeLF("Total crédito $:" + totalCreditoDolar)
+				.writeLF("Monto de abono:" + monto + " " + moneda)
+				.write("Saldo C$:").writeLF(bold, saldoCordobas)
+				.write("Saldo $:").writeLF(bold, saldoDolar)
 				.feed(4)
 				.writeLF(centrar, "_____________________________________")
-				.writeLF(centrar, "Firma vendedor")
+				.writeLF(centrar, "Atendio")
 				.feed(8)
 				.writeLF(centrar, "_____________________________________")
 				.writeLF(centrar, "Firma cliente")
@@ -364,7 +411,7 @@ public class CtrlPagos extends CtrlImprimir implements ActionListener, CaretList
 			if (e.getClickCount() == 2) {
 				try {
 					if (filaseleccionada != -1) {
-						anotacion = (String) menu.tblPagos.getValueAt(filaseleccionada, 7);
+						anotacion = (String) menu.tblPagos.getValueAt(filaseleccionada, 8);
 						this.menu.txtAreaAnotacionPagoJD.setText(anotacion);
 						this.menu.jdAnotacionPagos.setLocationRelativeTo(null);
 						this.menu.jdAnotacionPagos.setSize(555, 284);

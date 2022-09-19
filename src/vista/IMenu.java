@@ -243,17 +243,14 @@ public class IMenu extends javax.swing.JFrame {
                 tblPagos = new javax.swing.JTable();
                 jLabel175 = new javax.swing.JLabel();
                 lblNumeroPago = new javax.swing.JLabel();
-                txtCreditoPago = new javax.swing.JTextField();
                 jLabel79 = new javax.swing.JLabel();
                 jLabel41 = new javax.swing.JLabel();
                 cmbFormaPagoCredito = new javax.swing.JComboBox<>();
                 jLabel81 = new javax.swing.JLabel();
                 jcFechaPago = new com.toedter.calendar.JDateChooser();
                 jLabel199 = new javax.swing.JLabel();
-                jsFacturaPagoU = new javax.swing.JSpinner();
                 cmbMonedaPago = new javax.swing.JComboBox<>();
                 jLabel198 = new javax.swing.JLabel();
-                txtMontoPago = new javax.swing.JTextField();
                 jLabel80 = new javax.swing.JLabel();
                 btnNuevoPago = new javax.swing.JButton();
                 btnGuardarPago = new javax.swing.JButton();
@@ -262,6 +259,9 @@ public class IMenu extends javax.swing.JFrame {
                 txtAreaAnotacionPagos = new javax.swing.JTextArea();
                 txtBuscarPago = new javax.swing.JTextField();
                 jLabel34 = new javax.swing.JLabel();
+                txtNumeroComprobante = new javax.swing.JTextField();
+                jsCreditoPago = new javax.swing.JSpinner();
+                jsMontoPago = new javax.swing.JSpinner();
                 jdInfoCrediticia = new javax.swing.JDialog();
                 jpInformacionCrediticia = new javax.swing.JPanel();
                 jScrollPane8 = new javax.swing.JScrollPane();
@@ -1724,8 +1724,6 @@ public class IMenu extends javax.swing.JFrame {
                 lblNumeroPago.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
                 lblNumeroPago.setText("1");
 
-                txtCreditoPago.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-
                 jLabel79.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 jLabel79.setText("Crédito:");
 
@@ -1738,18 +1736,13 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel81.setText("Fecha:");
 
                 jLabel199.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-                jLabel199.setText("Factura:");
-
-                jsFacturaPagoU.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-                jsFacturaPagoU.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+                jLabel199.setText("N. comprobante:");
 
                 cmbMonedaPago.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 cmbMonedaPago.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Córdobas", "Dolar" }));
 
                 jLabel198.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 jLabel198.setText("Anotación:");
-
-                txtMontoPago.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
 
                 jLabel80.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
                 jLabel80.setText("Monto:");
@@ -1780,6 +1773,14 @@ public class IMenu extends javax.swing.JFrame {
                 jLabel34.setText("Buscar:");
                 jLabel34.setToolTipText("");
 
+                txtNumeroComprobante.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+
+                jsCreditoPago.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jsCreditoPago.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+
+                jsMontoPago.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+                jsMontoPago.setModel(new javax.swing.SpinnerNumberModel(0.0f, 0.0f, null, 0.01f));
+
                 javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
                 jPanel20.setLayout(jPanel20Layout);
                 jPanel20Layout.setHorizontalGroup(
@@ -1805,13 +1806,13 @@ public class IMenu extends javax.swing.JFrame {
                                         .addGroup(jPanel20Layout.createSequentialGroup()
                                                 .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(jLabel79)
-                                                        .addComponent(txtCreditoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addComponent(jsCreditoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(cmbFormaPagoCredito, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(jLabel41, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(jPanel20Layout.createSequentialGroup()
-                                                .addComponent(txtMontoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jsMontoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(cmbMonedaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1824,9 +1825,11 @@ public class IMenu extends javax.swing.JFrame {
                                                                 .addComponent(jcFechaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addComponent(jLabel81))
                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                .addComponent(jLabel199)
-                                                                .addComponent(jsFacturaPagoU, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                                        .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                .addGroup(jPanel20Layout.createSequentialGroup()
+                                                                        .addComponent(jLabel199)
+                                                                        .addGap(30, 30, 30))
+                                                                .addComponent(txtNumeroComprobante)))))
                                 .addContainerGap(18, Short.MAX_VALUE))
                         .addComponent(jScrollPane24, javax.swing.GroupLayout.Alignment.TRAILING)
                 );
@@ -1844,17 +1847,17 @@ public class IMenu extends javax.swing.JFrame {
                                                         .addComponent(jLabel79)
                                                         .addComponent(jLabel41))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(txtCreditoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(cmbFormaPagoCredito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(cmbFormaPagoCredito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jsCreditoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(jPanel20Layout.createSequentialGroup()
-                                                .addComponent(jLabel81, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jLabel81, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jLabel199, javax.swing.GroupLayout.Alignment.TRAILING))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jcFechaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(jPanel20Layout.createSequentialGroup()
-                                                .addComponent(jLabel199)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jsFacturaPagoU, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(txtNumeroComprobante, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jcFechaPago, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel80)
@@ -1862,9 +1865,9 @@ public class IMenu extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel20Layout.createSequentialGroup()
-                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(cmbMonedaPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(txtMontoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addComponent(jsMontoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(btnGuardarPago)
@@ -6732,10 +6735,11 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JPanel jpInformacionCrediticia;
         public javax.swing.JSpinner jsCantidadDolar;
         public javax.swing.JSpinner jsCantidadDolar1;
+        public javax.swing.JSpinner jsCreditoPago;
         public javax.swing.JSpinner jsFacturaPago;
         public javax.swing.JSpinner jsFacturaPagoSalida;
-        public javax.swing.JSpinner jsFacturaPagoU;
         public javax.swing.JSpinner jsLimiteCredito;
+        public javax.swing.JSpinner jsMontoPago;
         public javax.swing.JSpinner jsNcopias;
         public javax.swing.JSpinner jsPrecioCompraDolar;
         public javax.swing.JMenuItem kardex;
@@ -6920,7 +6924,6 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JTextField txtCorreo;
         public javax.swing.JTextField txtCrearCodigoBarra;
         public javax.swing.JTextField txtCreditoFactura;
-        public javax.swing.JTextField txtCreditoPago;
         public javax.swing.JTextField txtCreditosCierre;
         public javax.swing.JTextArea txtDescripcionCategoria;
         public javax.swing.JTextArea txtDescripcionCierre;
@@ -6943,7 +6946,6 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JTextField txtMargenGanancia;
         public javax.swing.JTextField txtMesCierre;
         public javax.swing.JTextField txtMontoGasto;
-        public javax.swing.JTextField txtMontoPago;
         public javax.swing.JTextField txtNClienteFactura;
         public javax.swing.JTextField txtNfacturaMembretada;
         public javax.swing.JTextField txtNombreCategoria;
@@ -6952,6 +6954,7 @@ public class IMenu extends javax.swing.JFrame {
         public javax.swing.JTextField txtNombreTienda;
         public javax.swing.JTextField txtNombreUsuario;
         public javax.swing.JTextField txtNombresCliente;
+        public javax.swing.JTextField txtNumeroComprobante;
         public javax.swing.JTextField txtNumeroFactura;
         public javax.swing.JTextField txtPagoCon;
         public javax.swing.JTextField txtPasswordUsuario;

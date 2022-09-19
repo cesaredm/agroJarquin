@@ -65,7 +65,7 @@ public class CtrlDevoluciones implements ActionListener, WindowListener {
 
 	public void DevolverProducto() {
 		Date fecha = menu.jcFacturasEmitidas.getDate();
-		int idProducto = 0, filaseleccionada = 0, filaseleccionadaR = 0, idDetalle = 0, idFactura = 0, filas;
+		int idProducto = 0, filaseleccionada = 0, filaseleccionadaR = 0, idDetalle = 0, idFactura = 0, filas, credito = 0;
 		String precioDolar = menu.txtPrecioDolarVenta.getText(), bandera, restarString;
 		float precio = 0,
 			cantidadActual = 0,
@@ -106,6 +106,8 @@ public class CtrlDevoluciones implements ActionListener, WindowListener {
 					cantidadActual = Float.parseFloat(this.modelo.getValueAt(filaseleccionada, 4).toString());
 					bandera = (String) this.modelo.getValueAt(filaseleccionada, 7);
 					idFactura = Integer.parseInt(menu.tblReporte.getValueAt(filaseleccionadaR, 0).toString());
+					credito = (menu.tblReporte.getValueAt(filaseleccionadaR, 6) == null) ? 0 :
+						Integer.parseInt(menu.tblReporte.getValueAt(filaseleccionadaR, 6).toString());
 					total = this.factura.obtenerTotalFacturaSeleccionada(idFactura);//Float.parseFloat(menu.tblReporte.getValueAt(filaseleccionadaR, 3).toString());
 					if (bandera.equals("v")) {
 						this.factura.monedaVentaProducto(String.valueOf(idProducto));
@@ -151,6 +153,7 @@ public class CtrlDevoluciones implements ActionListener, WindowListener {
 							String.valueOf(cantidadDevolver)
 						);
 						MostrarDetalleFactura(idFactura);
+						CtrlCreditos.cambiarEstado(credito);
 						MostrarProductos("");
 						MostrarProductosVender("");
 					} else {

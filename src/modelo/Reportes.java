@@ -1366,7 +1366,11 @@ public class Reportes extends Conexiondb {
 				while (rs.next()) {
 					ventasCosto = rs.getFloat("costoCordobas") + rs.getFloat("costoDolar");
 					ventasNetas = rs.getFloat("ventasCordobas") + rs.getFloat("ventasDolar");
-					utilidad = ventasNetas - ventasCosto;
+					if (ventasCosto > 0) {
+						utilidad = ventasNetas - ventasCosto;
+					}else{
+						utilidad = 0;
+					}
 					ventas[i] = this.formato.format(ventasNetas);
 					utilidades[i] = this.formato.format(utilidad);
 				}

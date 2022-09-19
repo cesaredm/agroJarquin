@@ -826,7 +826,7 @@ public class CtrlProducto extends CtrlImprimir implements ActionListener, CaretL
 		try {
 			if(filaseleccionada != -1)
 			{
-				if(click == 2)
+				if(click == 2 && this.permiso == 1)
 				{
 					id = (String) menu.tblProductos.getValueAt(filaseleccionada, 0);
 					info = this.productos.infoProducto(id);

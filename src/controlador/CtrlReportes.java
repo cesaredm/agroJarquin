@@ -374,13 +374,13 @@ public class CtrlReportes implements ActionListener, MouseListener, KeyListener 
 			{"Ingreso por ventas en efectivo en cord", "C$", this.formato.format(ingresosVentaE)},
 			{"Ingreso por abonos en efectivo en cord", "C$", this.formato.format(ingresosPagosE)},
 			{"Ingreso de efectivo", "C$", this.formato.format(this.ingresosEfectivoCordobas)},
-			{"Creditos en cordobas", "C$", this.formato.format(creditos)},
+			{"Créditos en cordobas", "C$", this.formato.format(creditos)},
 			{"Ingreso por ventas con tarjeta", "C$", this.formato.format(ingresosVentasT)},
 			{"Egresos en córdobas", "C$", this.formato.format(egresosCordobas)},
-			{"Ingreso por ventas en efectivo en Dolar", "$", this.formato.format(ingresosVentaEfectivoDolar)},
+			{"Ingreso por ventas en efectivo en dolar", "$", this.formato.format(ingresosVentaEfectivoDolar)},
 			{"Ingreso por abonos en efectivo en dolar", "$", this.formato.format(this.pagosEfectivoDolar)},
 			{"Ingreso de efectivo","$",this.formato.format(this.ingresosEfectivoDolar)},
-			{"Creditos en dolar", "$", this.formato.format(creditosDolar)},
+			{"Créditos en dolar", "$", this.formato.format(creditosDolar)},
 			{"Egresos en dolares", "$", this.formato.format(this.egresosDolar)},
 			{"Ingreso por abonos con tarjeta", "C$", this.formato.format(ingresosPagoT)},};
 		try {
